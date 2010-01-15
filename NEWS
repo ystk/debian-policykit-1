@@ -1,0 +1,253 @@
+--------------
+PolicyKit 0.96
+--------------
+
+This is PolicyKit 0.96. This is supposed to be the last release until 1.0.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.21.4
+ eggdbus-1             >= 0.6
+ gobject-introspection >= 0.6.2 (optional)
+ pam
+
+Changes since PolicyKit 0.95:
+
+David Zeuthen (15):
+      Bug 25367 — Also read local authority configuration data from /etc
+      Fix logic error in pk-example-frobnicate
+      Run the open_session part of the PAM stack in pkexec(1)
+      Fix up last comment
+      Bug 25594 – System logging
+      Remove trailing whitespace from log messages
+      Properly handle return value from getpwnam_r()
+      Fix error message when no authentication agent is available
+      Make pkexec(1) validate environment variables
+      Make pkexec(1) use the syslogging facilities
+      Save original cwd in pkexec(1) since it will change during the life-time
+      Complain on stderr, not stdout
+      Post-release version bump to 0.96
+      Don't log authorization checks
+      Update NEWS for release
+
+David Zeuthen,
+January 15, 2010
+
+--------------
+PolicyKit 0.95
+--------------
+
+This is PolicyKit 0.95. This is supposed to be the last release until 1.0.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.21.4
+ eggdbus-1             >= 0.6
+ gobject-introspection >= 0.6.2 (optional)
+ pam
+
+Changes since PolicyKit 0.94:
+
+Alexander Sack (1):
+      Bug 24566 – Properly _ref authority in singleton constructor
+
+Andreas Sandberg (1):
+      Bug 24235 – polkit-agent-helper may call pam_end with a stale pam handle
+
+Bastien Nocera (1):
+      Fix process start time when using polkit_unix_process_new_full()
+
+David Zeuthen (20):
+      Post-release version bump to 0.95
+      Use correct program name when complaining about not being setuid root
+      Sort by action id in pkaction(1) output
+      Bug 23867 – UnixProcess vs. SystemBusName aliasing
+      Implement lockdown for the Local Authority implementation
+      Remove POLKIT_USER from configuration summary
+      Add missing comma so we're save both LANG and LANGUAGE, not only LANGLANGUAGE
+      Pass --libtool to g-ir-scanner
+      Clarify comment on where to find process start-time on Linux
+      Add properties with information about the currently used authority
+      Clarify when AllowUserInteraction should and shouldn't be used
+      Add methods AddLockdownForAction() and RemoveLockdownForAction()
+      Port lockdown from pklalockdown(1) to D-Bus methods
+      Drop ununsed policykit actions
+      Remove TODO about symbol visibility as this has been fixed for a while
+      Clarify pklocalauthority(8) man page
+      Properly validate all arguments passed via D-Bus
+      Add Python example
+      Fix make distcheck
+      Update NEWS for release
+
+Matthias Clasen (1):
+      Bug 24640 – Typos in pklocalauthority(8)
+
+Michael Biebl (8):
+      Trim the list of exported symbols
+      Use _polkit_agent_marshal prefix
+      Make private symbols accessible to libpolkitagent and libpolkitbackend
+      Make examples optional
+      Enable silent rules
+      Remove POLKIT_USER option
+      Don't include Polkit-1.0.gir in the dist tarball
+      Bug 24176 – Current git master fails to build, GLIB_LDADD -> GLIB_LIBS
+
+Samuel Thibault (1):
+      Bug 24495 – Fails to build on platforms without PATH_MAX (like hurd)
+
+David Zeuthen,
+November 13, 2009
+
+--------------
+PolicyKit 0.94
+--------------
+
+This is PolicyKit 0.94.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.21.4
+ eggdbus-1             >= 0.5
+ gobject-introspection >= 0.6.2 (optional)
+ pam
+
+Changes since PolicyKit 0.93:
+
+ David Zeuthen (13):
+       Post-release version bump to 0.94
+       Require correct versions of glib and eggdbus
+       Ignore .pkla files starting with dot and don't segfault on error path
+       Allow unprivileged callers to check authorizations
+       Don't spawn man(1) from a setuid program
+       Add polkit.retains_authorization_after_challenge to authz result
+       Ensure all fds except stdin/stdout/stderr are closed after exec(2)
+       Be more careful when determining process start time
+       Pass the right struct offset for the ::changed class signal handler
+       Don't set the GError if the process doesn't exist
+       Remove temporary authorization when the subject it applies to vanishes
+       Generate GI gir and typelibs for libpolkit-gobject-1
+       Update NEWS for release
+
+ Joe Marcus Clarke (1):
+       Bug 23093 – FreeBSD portability fixes
+
+David Zeuthen,
+August 12, 2009
+
+--------------
+PolicyKit 0.93
+--------------
+
+This is PolicyKit 0.93.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio >= 2.21.4
+ eggdbus-1          >= 0.5
+ pam
+
+Changes since PolicyKit 0.92:
+
+David Zeuthen (16):
+      Post-release version bump to 0.93
+      GIO modules need to be prefix with lib
+      Cancel an authentication if the unique name for the subject vanishes
+      Plug a couple of memory leaks
+      Move local authority management to a separate library
+      Rip out polkit-local and refactor local authority to only use tmp authz
+      Move authentication agent bits to separate authority subclass
+      Also pass the identity of the subject we are checking for
+      Actually make the local authority look up authorization files
+      In .pkla files, use Result{Any,Inactive,Active} instead of just Result
+      Rename some man pages and the daemon binary
+      Add docs detailing how the Local Authority works
+      Add support for querying and revoking temporary authorizations
+      Fix make distcheck
+      Update TODO
+      Update NEWS for release
+
+Yanko Kaneti (2):
+      Use unique ids for sections to prevent them being autogenerated
+      More unique ids to get the docs build fully predictable
+
+David Zeuthen,
+July 20th, 2009
+
+--------------
+PolicyKit 0.92
+--------------
+
+This is PolicyKit 0.92.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio >= 2.14
+ eggdbus-1          >= 0.4
+ pam
+
+Changes since PolicyKit 0.91:
+
+ David Zeuthen (36):
+      post-release version bump to 0.92
+      install gtkdoc HTML in the proper location
+      Fix D-Bus policy to work with non-permissive D-Bus
+      Only allow privileged apps to check authz and add ActionLookup interface
+      Change the PolkitAuthorizationResult enumeration into an object
+      Port examples and command-line tools to new API
+      Move docs to proper location
+      Add a pkexec(1) command
+      Mention /usr/bin/pkexec in the configure blurb
+      Fix a bug where details were not shown for normal pkexec usage
+      Use an object, not a GHashTable when passing details around
+      Forgot to add source for PolkitDetails
+      Change the defaults for .run-frobnicate to auth_self_keep
+      Require eggdbus-1 >= 0.4
+      Only free hash table if it's not NULL
+      Avoid returning an error if no authentication agent is available
+      Clarify docs for is_challenge member of the AuthorizationResult struct
+      Add pkcheck(1) command to check for authorizations
+      nullbackend: Catch up with latest API changes
+      Return the icon name instead of a GIcon in PolkitActionDescription
+      Add pkaction(1) and nuke polkit-1(1) commands
+      Update SEE ALSO sections in man pages
+      Add a man page for polkit-1(8)
+      First cut at some high-level docs
+      Improve pkexec(1) man page by adding screenshots of authentication dialogs
+      Add some more API docs
+      Add a "PolicyKit Overview" section to the docs
+      Consolidate all gtk-doc stuff in docs/polkit
+      Expand on the D-Bus docs
+      Use .../extensions instead of ../backends for loading extensions
+      Minor doc fixes
+      Move the doc chapters around a bit
+      Change GNOME to freedesktop.org in the docs
+      Fix make distcheck
+      Update NEWS
+      Also dist polkitd-1.xml
+
+ Richard Hughes (2):
+      fix up gtk-doc API markup for a couple of functions
+      add a draft version of the porting guide -- WIP
+
+David Zeuthen,
+June 8, 2009
