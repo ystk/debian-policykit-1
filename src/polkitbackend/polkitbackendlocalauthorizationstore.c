@@ -21,11 +21,12 @@
 
 #include "config.h"
 
+#include <netdb.h>
 #include <string.h>
 #include <polkit/polkit.h>
 #include "polkitbackendlocalauthorizationstore.h"
 
-/**
+/* <internal>
  * SECTION:polkitbackendlocalauthorizationstore
  * @title: PolkitBackendLocalAuthorizationStore
  * @short_description: Watches a directory for authorization files
@@ -74,7 +75,12 @@ typedef struct
 {
   gchar *id;
 
+  /* Identities with glob support */
   GList *identity_specs;
+
+  /* Netgroup identity strings, which can not support glob syntax */
+  GList *netgroup_identities;
+
   GList *action_specs;
 
   PolkitImplicitAuthorization result_any;
@@ -90,6 +96,7 @@ local_authorization_free (LocalAuthorization *authorization)
   g_free (authorization->id);
   g_list_foreach (authorization->identity_specs, (GFunc) g_pattern_spec_free, NULL);
   g_list_free (authorization->identity_specs);
+  g_list_free_full (authorization->netgroup_identities, g_free);
   g_list_foreach (authorization->action_specs, (GFunc) g_pattern_spec_free, NULL);
   g_list_free (authorization->action_specs);
   if (authorization->return_value != NULL)
@@ -135,8 +142,13 @@ local_authorization_new (GKeyFile      *key_file,
     }
   for (n = 0; identity_strings[n] != NULL; n++)
     {
-      authorization->identity_specs = g_list_prepend (authorization->identity_specs,
-                                                      g_pattern_spec_new (identity_strings[n]));
+      /* Put netgroup entries in a seperate list from other identities who support glob syntax */
+      if (g_str_has_prefix (identity_strings[n], "unix-netgroup:"))
+        authorization->netgroup_identities = g_list_prepend (authorization->netgroup_identities,
+                                                             g_strdup (identity_strings[n] + sizeof "unix-netgroup:" - 1));
+      else
+        authorization->identity_specs = g_list_prepend (authorization->identity_specs,
+                                                        g_pattern_spec_new (identity_strings[n]));
     }
 
   action_strings = g_key_file_get_string_list (key_file,
@@ -549,7 +561,7 @@ polkit_backend_local_authorization_store_ensure (PolkitBackendLocalAuthorization
 
   error = NULL;
   enumerator = g_file_enumerate_children (store->priv->directory,
-                                          "standard::*",
+                                          "standard::name",
                                           G_FILE_QUERY_INFO_NONE,
                                           NULL,
                                           &error);
@@ -641,6 +653,8 @@ polkit_backend_local_authorization_store_ensure (PolkitBackendLocalAuthorization
       g_free (filename);
     }
 
+  store->priv->has_data = TRUE;
+
  out:
   g_list_foreach (files, (GFunc) g_object_unref, NULL);
   g_list_free (files);
@@ -702,7 +716,7 @@ polkit_backend_local_authorization_store_lookup (PolkitBackendLocalAuthorization
       if (ll == NULL)
         continue;
 
-      /* then match the identity */
+      /* then match the identity against identity specs */
       if (identity_string == NULL)
         identity_string = polkit_identity_to_string (identity);
       for (ll = authorization->identity_specs; ll != NULL; ll = ll->next)
@@ -710,6 +724,22 @@ polkit_backend_local_authorization_store_lookup (PolkitBackendLocalAuthorization
           if (g_pattern_match_string ((GPatternSpec *) ll->data, identity_string))
             break;
         }
+
+      /* if no identity specs matched and identity is a user, match against netgroups */
+      if (ll == NULL && POLKIT_IS_UNIX_USER (identity))
+        {
+          PolkitUnixUser *user_identity = POLKIT_UNIX_USER (identity);
+          const gchar *user_name = polkit_unix_user_get_name (user_identity);
+          if (!user_name)
+            continue;
+
+          for (ll = authorization->netgroup_identities; ll != NULL; ll = ll->next)
+            {
+              if (innetgr ((const gchar *) ll->data, NULL, user_name, NULL))
+                break;
+            }
+        }
+
       if (ll == NULL)
         continue;
 

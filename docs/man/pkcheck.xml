@@ -30,6 +30,16 @@
 
     <cmdsynopsis>
       <command>pkcheck</command>
+      <arg><option>--list-temp</option></arg>
+    </cmdsynopsis>
+
+    <cmdsynopsis>
+      <command>pkcheck</command>
+      <arg><option>--revoke-temp</option></arg>
+    </cmdsynopsis>
+
+    <cmdsynopsis>
+      <command>pkcheck</command>
       <arg choice="plain">
         <option>--action-id</option>
         <replaceable>action</replaceable>
@@ -59,6 +69,12 @@
         </arg>
       </group>
 
+      <group>
+        <arg choice="plain">
+          <option>--enable-internal-agent</option>
+        </arg>
+      </group>
+
       <group rep="repeat">
         <arg choice="plain">
           <option>--detail</option>
@@ -79,6 +95,12 @@
       option can be used zero or more times to pass details about <replaceable>action</replaceable>.
       If <option>--allow-user-interaction</option> is passed, <command>pkcheck</command> blocks
       while waiting for authentication.
+    </para>
+    <para>
+      The invocation <command>pkcheck --list-temp</command> will list
+      all temporary authorizations for the current session and
+      <command>pkcheck --revoke-temp</command> will revoke all
+      temporary authorizations for the current session.
     </para>
     <para>
       This command is a simple wrapper around the PolicyKit D-Bus interface; see the
@@ -119,6 +141,13 @@ KEY3=VALUE3
       Details are printed on standard output.
     </para>
     <para>
+      If the specificied process is not authorized because the
+      authentication dialog / request was dismissed by the user,
+      <command>pkcheck</command> exits with a return value of 3 and a
+      diagnostic message is printed on standard error.  Details are
+      printed on standard output.
+    </para>
+    <para>
       If an error occured while checking for authorization, <command>pkcheck</command> exits
       with a return value of 127 with a diagnostic message printed on standard error.
     </para>
@@ -142,6 +171,17 @@ KEY3=VALUE3
       file system depending on the operating system. If only <replaceable>pid</replaceable>
       is passed to the <option>--process</option> option, then <command>pkcheck</command>
       will look up the start time itself but note that this may be racy.
+    </para>
+  </refsect1>
+
+  <refsect1 id="pkcheck-auth-agent"><title>AUTHENTICATION AGENT</title>
+    <para>
+      <command>pkcheck</command>, like any other PolicyKit
+      application, will use the authentication agent registered for
+      the process in question. However, if no authentication agent is
+      available, then <command>pkcheck</command> can register its own
+      textual authentication agent if the option
+      <option>--enable-internal-agent</option> is passed.
     </para>
   </refsect1>
 
@@ -173,6 +213,9 @@ KEY3=VALUE3
       </citerefentry>,
       <citerefentry>
         <refentrytitle>pkexec</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>,
+      <citerefentry>
+        <refentrytitle>pkttyagent</refentrytitle><manvolnum>1</manvolnum>
       </citerefentry>
     </para>
   </refsect1>

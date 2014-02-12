@@ -3,38 +3,23 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>pklocalauthority</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
-<link rel="home" href="index.html" title="PolicyKit Reference Manual">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="polkit Reference Manual">
 <link rel="up" href="manpages.html" title="Part VI. Manual Pages">
 <link rel="prev" href="pkexec.1.html" title="pkexec">
-<link rel="next" href="polkit-hierarchy.html" title="Object Hierarchy">
-<meta name="generator" content="GTK-Doc V1.13 (XML mode)">
+<link rel="next" href="pkttyagent.1.html" title="pkttyagent">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
-<link rel="part" href="overview.html" title="Part I. PolicyKit Overview">
-<link rel="chapter" href="polkit-intro.html" title="Introduction">
-<link rel="chapter" href="polkit-apps.html" title="Writing PolicyKit applications">
-<link rel="chapter" href="polkit-agents.html" title="Writing PolicyKit Authentication Agents">
-<link rel="chapter" href="polkit-extending.html" title="Extending PolicyKit">
-<link rel="part" href="ref-dbus-api.html" title="Part II. D-Bus API Reference">
-<link rel="part" href="ref-api.html" title="Part III. Client API Reference">
-<link rel="chapter" href="subjects.html" title="Subjects">
-<link rel="chapter" href="Identities.html" title="Identities">
-<link rel="part" href="ref-backend-api.html" title="Part IV. Backend API Reference">
-<link rel="part" href="ref-authentication-agent-api.html" title="Part V. Authentication Agent API Reference">
-<link rel="part" href="manpages.html" title="Part VI. Manual Pages">
-<link rel="chapter" href="polkit-hierarchy.html" title="Object Hierarchy">
-<link rel="index" href="polit-index.html" title="Index">
-<link rel="appendix" href="license.html" title="Appendix A. License">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2"><tr valign="middle">
 <td><a accesskey="p" href="pkexec.1.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
 <td><a accesskey="u" href="manpages.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
-<th width="100%" align="center">PolicyKit Reference Manual</th>
-<td><a accesskey="n" href="polkit-hierarchy.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<th width="100%" align="center">polkit Reference Manual</th>
+<td><a accesskey="n" href="pkttyagent.1.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr></table>
-<div class="refentry" title="pklocalauthority">
+<div class="refentry">
 <a name="pklocalauthority.8"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
@@ -43,7 +28,7 @@
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsect1" title="DESCRIPTION">
+<div class="refsect1">
 <a name="pklocalauthority-description"></a><h2>DESCRIPTION</h2>
 <p>
       The Local Authority is the default PolicyKit authority
@@ -63,7 +48,7 @@
       will be overwritten on update.
     </p>
 </div>
-<div class="refsect1" title="ADMINISTRATOR AUTHENTICATION">
+<div class="refsect1">
 <a name="pklocalauthority-admin-authentication"></a><h2>ADMINISTRATOR AUTHENTICATION</h2>
 <p>
       PolicyKit makes a distinction between <span class="emphasis"><em>user
@@ -101,13 +86,14 @@
       this key is a semi-colon separated list of identities that can
       be used when administrator authentication is required. Users are
       specified by prefixing the user name with
-      <code class="literal">unix-user:</code> and groups of users are specified
-      by prefixing with <code class="literal">unix-group:</code>. See
+      <code class="literal">unix-user:</code>, groups of users are specified by 
+      prefixing with <code class="literal">unix-group:</code>, and netgroups of
+      users are specified with <code class="literal">unix-netgroup:</code>. See
       <a class="xref" href="pklocalauthority.8.html#pklocalauthority-examples" title="EXAMPLES">the section called “EXAMPLES”</a> for an example of a
       configuration file.
     </p>
 </div>
-<div class="refsect1" title="DIRECTORY STRUCTURE">
+<div class="refsect1">
 <a name="pklocalauthority-directory-structure"></a><h2>DIRECTORY STRUCTURE</h2>
 <p>
       The Local Authority reads files with <code class="filename">.pkla</code>
@@ -205,7 +191,7 @@
       suitable.
     </p>
 </div>
-<div class="refsect1" title="AUTHORIZATION ENTRY">
+<div class="refsect1">
 <a name="pklocalauthority-authorization-entry"></a><h2>AUTHORIZATION ENTRY</h2>
 <p>
       Each group in a <code class="filename">.pkla</code> file must have a name
@@ -221,7 +207,9 @@
             A semi-colon separated list of globs to match identities. Each glob
             should start with <code class="literal">unix-user:</code> or
             <code class="literal">unix-group:</code> to specify whether to match on a
-            UNIX user name or a UNIX group name.
+            UNIX user name or a UNIX group name. Netgroups are supported with
+            the <code class="literal">unix-netgroup:</code> prefix, but cannot support
+            glob syntax.
           </p></td>
 </tr>
 <tr>
@@ -279,7 +267,7 @@
       be present. The <span class="emphasis"><em>ReturnValue</em></span> key is optional.
     </p>
 </div>
-<div class="refsect1" title="EVALUATION ORDER">
+<div class="refsect1">
 <a name="pklocalauthority-evaluation-order"></a><h2>EVALUATION ORDER</h2>
 <p>
       When a Mechanism requests services from the Authority to check
@@ -368,17 +356,17 @@
       discussion.
     </p>
 </div>
-<div class="refsect1" title="EXAMPLES">
+<div class="refsect1">
 <a name="pklocalauthority-examples"></a><h2>EXAMPLES</h2>
 <p>
       The following <code class="filename">.conf</code> file
     </p>
 <pre class="programlisting">
 [Configuration]
-AdminIdentities=unix-group:desktop_admin_r
+AdminIdentities=unix-group:staff
     </pre>
 <p>
-      that any user in the <code class="literal">desktop_admin_r</code> UNIX
+      specifies that any user in the <code class="literal">staff</code> UNIX
       group can be used for authentication when administrator
       authentication is needed. This file would typically be installed
       in the <code class="filename">/etc/polkit-1/localauthority.conf.d</code>
@@ -432,14 +420,14 @@ ResultActive=auth_admin
       and make sure this authorization entry is after the first one.
     </p>
 </div>
-<div class="refsect1" title="AUTHOR">
+<div class="refsect1">
 <a name="pklocalauthority-author"></a><h2>AUTHOR</h2>
 <p>
       Written by David Zeuthen <code class="email">&lt;<a class="email" href="mailto:davidz@redhat.com">davidz@redhat.com</a>&gt;</code> with
       a lot of help from many others.
     </p>
 </div>
-<div class="refsect1" title="BUGS">
+<div class="refsect1">
 <a name="pklocalauthority-bugs"></a><h2>BUGS</h2>
 <p>
       Please send bug reports to either the distribution or the
@@ -448,7 +436,7 @@ ResultActive=auth_admin
       on how to subscribe.
     </p>
 </div>
-<div class="refsect1" title="SEE ALSO">
+<div class="refsect1">
 <a name="pklocalauthority-see-also"></a><h2>SEE ALSO</h2>
 <p>
       <span class="citerefentry"><span class="refentrytitle">polkit</span>(8)</span>
@@ -457,6 +445,6 @@ ResultActive=auth_admin
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.13</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

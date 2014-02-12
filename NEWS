@@ -1,4 +1,386 @@
 --------------
+polkit 0.105
+--------------
+
+This is polkit 0.105
+
+WARNING WARNING WARNING: This is a prerelease on the road to polkit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.28
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+ ConsoleKit OR systemd
+
+Changes since polkit 0.104:
+
+David Zeuthen (11):
+      Post-release version bump
+      PolkitUnixSession: Set error if we cannot find a session for the given pid
+      PolkitUnixSession: Actually return TRUE if a session exists
+      PolkitAgentSession: Don't leak file descriptors
+      Add pkttyagent(1) helper
+      Make it possible to influence agent registration with an a{sv} parameter
+      Fix type in docs
+      Mention pkttyagent(1) in "Writing PolicyKit applications" chapter
+      Update the docs to use 'polkit' (instead of 'PolicyKit') as the name
+      Add Makefile rules for signing and publishing releases and docs
+      Update NEWS for release
+
+Ryan Lortie (1):
+      Various builddir != srcdir fixes
+
+Thanks to our contributors.
+
+David Zeuthen,
+April 24, 2012
+
+--------------
+PolicyKit 0.104
+--------------
+
+This is PolicyKit 0.104
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.28
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+ ConsoleKit OR systemd
+
+Changes since PolicyKit 0.103:
+
+ David Zeuthen (3):
+      Post-release version bump to 0.104
+      Detect whether systemd is available and default to use if so
+      Update NEWS for release
+
+ Matthias Clasen (1):
+      Add optional systemd support
+
+ Nikki VonHollen (2):
+      Bug 43608 – Add unit tests
+      Bug 43610 - Add netgroup support
+
+Thanks to our contributors.
+
+David Zeuthen,
+January 3, 2012
+
+--------------
+PolicyKit 0.103
+--------------
+
+This is PolicyKit 0.103
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.28
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+IMPORTANT: As of release 0.103, the default Authority backend now
+defaults to allowing members of the 'wheel' group to authenticate as
+an administator since this is common usage in popular Linux
+distributions. Distributors can change this by patching the
+50-localauthority.conf file in /etc/polkit-1/localauthority.conf.d as
+needed.
+
+Changes since PolicyKit 0.102:
+
+ Alan Near (1):
+      Mistype in DBus object: PoliycKit1 -> PolicyKit1
+
+ David Zeuthen (7):
+      Post-release version bump to 0.103
+      Add support for the org.freedesktop.policykit.imply annotation
+      Add --no-debug option and use this for D-Bus activation
+      Bug 41025 – Add org.freedesktop.policykit.owner annotation
+      Default to AdminIdentities=unix-group:wheel for local authority
+      Update NEWS for release
+      Fix typo
+
+Thanks to our contributors.
+
+David Zeuthen,
+December 6, 2011
+
+--------------
+PolicyKit 0.102
+--------------
+
+This is PolicyKit 0.102
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.28
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+Changes since PolicyKit 0.101:
+
+ Benjamin Otte (1):
+       introspection: Add --c-include to the gir files
+
+ David Zeuthen (7):
+       Post-release version bump to 0.102
+       Don't show diagnostic messages intended for the administrator to the end u
+       PolkitUnixProcess: Clarify that the real uid is returned, not the effectiv
+       Make PolkitUnixProcess also record the uid of the process
+       Use polkit_unix_process_get_uid() to get the owner of a process
+       pkexec: Avoid TOCTTOU problems with parent process
+       Update NEWS for release
+
+ Evan Nemerson (1):
+       Specify exported pkg-config files in GIRs
+
+ Marc Deslauriers (1):
+       Fix multi-line pam prompt handling
+
+ Martin Pitt (3):
+       Ignore .po/ for intltool
+       Fix backend crash if a .policy file does not specify <message>
+       Bug 38769 — pkexec: Support running X11 apps
+
+Thanks to our contributors.
+
+David Zeuthen,
+August 1, 2011
+
+--------------
+PolicyKit 0.101
+--------------
+
+This is PolicyKit 0.101
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.28
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+Changes since PolicyKit 0.100:
+
+ Adrian Bunk (1):
+       Bug 27253 – Use GOBJECT_INTROSPECTION_CHECK from gobject-introspection
+
+ David Zeuthen (16):
+       Post-release version bump to 0.101
+       Bug 30653 – No way to detect cancellation in pkexec
+       Bug 27081 – pkexec fails to build on non glibc systems
+       Bug 30438 – PolicyKit fails to build on AIX
+       Bug 32334 – Always set polkit.retains_authorization_after_challenge
+       Fix a memory leak
+       Be more specific about what info we want when enumerating files
+       Make pkcheck(1) report if the authentication dialog was dismissed
+       pkcheck: Make it possible to list and revoke temporary authorizations
+       Be a bit more careful parsing the command-line
+       Bug 29712 – Use monotonic for temporary authorizations
+       Allow overriding message shown in authentication dialog
+       Deprecated PolkitBackendActionLookup
+       Fix a couple of warnings triggered by gcc 4.6
+       Build examples by default and fix compiler warnings
+       Update NEWS for release
+
+ Michael Biebl (1):
+       Bug 29871 – Fix build failures with binutils-gold
+
+Thanks to our contributors.
+
+David Zeuthen,
+March 3, 2011
+
+--------------
+PolicyKit 0.100
+--------------
+
+This is PolicyKit 0.100
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.25.12
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+Changes since PolicyKit 0.99:
+
+David Zeuthen (12):
+      Post-release version bump to 0.100
+      Add missing GObject Introspection annotations
+      Build gir/typelib for PolkitAgent-1.0
+      Fix-up PolkitAgentSession to use GObject properties
+      Improve error reporting for authentication sessions
+      Add some debug info that can be shown with the env var POLKIT_DEBUG
+      Fix up debug and timeouts in agent helper
+      Always pass non-zero value to g_once_init_leave()
+      Add a note about POLKIT_DEBUG
+      Pass caller and subject pid to authentication agent
+      Update NEWS for release
+      Fix 'make distcheck'
+
+Thanks to our contributors.
+
+David Zeuthen,
+February 21, 2011
+
+--------------
+PolicyKit 0.99
+--------------
+
+This is PolicyKit 0.99
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.25.12
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+Changes since PolicyKit 0.98:
+
+ Colin Walters (3):
+       Remove duplicate definitions of enumeration types
+       Fix (correct) GCC warning about possibly-uninitialized variable
+       Fix another GCC uninitialized variable warning
+
+ David Zeuthen (2):
+       Post-release version bump to 0.99
+       Update NEWS for release
+
+ Vincent Untz (1):
+       Bug 29816 – Install polkitagentenumtypes.h
+
+Thanks to our contributors.
+
+David Zeuthen,
+September 15, 2010
+
+--------------
+PolicyKit 0.98
+--------------
+
+This is PolicyKit 0.98.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.25.12
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+Changes since PolicyKit 0.97:
+
+David Zeuthen (11):
+      Post-release version bump to 0.98
+      Require GLib 2.25.12
+      Fix scanning of unix-process subjects
+      Add textual authentication agent and use it in pkexec(1)
+      Fix ConsoleKit interaction bug
+      pkexec: add --disable-internal-agent option
+      pkcheck: add --enable-internal-agent option
+      Fix wording in pkexec(1) man page
+      Various doc cleanups
+      Fix dist-check
+      Update NEWS for release
+
+Thanks to our contributors.
+
+David Zeuthen,
+August 20, 2010
+
+--------------
+PolicyKit 0.97
+--------------
+
+This is PolicyKit 0.97.
+
+WARNING WARNING WARNING: This is a prerelease on the road to PolicyKit
+1.0. Public API might change and certain parts of the code still needs
+some security review. Use at your own risk.
+
+The main change since the previous version is a port from eggdbus to
+GLib's new D-Bus implementation. Other changes includes various bug
+fixes and support for shadow authentication. Support for the
+AddLockdown() and RemoveLockdown() methods has been removed. You will
+need an updated version of PolicyKit-gnome to go with this release.
+
+Build requirements
+
+ glib, gobject, gio    >= 2.25.11
+ gobject-introspection >= 0.6.2 (optional)
+ pam (optional)
+
+Changes since PolicyKit 0.96:
+
+Andrew Psaltis (1):
+      Add shadow support
+
+Dan Rosenberg (1):
+      Bug 26982 – pkexec information disclosure vulnerability
+
+David Zeuthen (23):
+      Post-release version bump to 0.97
+      Port core bits to gdbus
+      Port CK class to gdbus
+      Port PolkitBackendInteractiveAuthority to gdbus
+      Port PolkitAgent to gdbus
+      Add generated docbook D-Bus API docs to git
+      Nuke eggdbus usage
+      Make polkitd accept --replace and gracefully handle SIGINT
+      Implement polkit_temporary_authorization_new_for_gvariant()
+      Remove Lock Down functionality
+      Make NameOwnerChanged a private impl detail of the interactive authority
+      Update README
+      Merge remote branch 'origin/gdbus'
+      Add a GPermission implementation
+      PolkitAuthority: Implement failable initialization
+      PolkitAuthority: Add g_return_if_fail() checks
+      Add g_return_if_fail() to all public API entry points
+      Use polkit_authority_get_sync() instead of deprecated polkit_authority_get
+      PolkitBackend: Don't export unneeded convenience API
+      Update GI annotations
+      Don't dist org.freedesktop.ConsoleKit.xml; It's dead, Jim
+      Properly reference headers
+      Update NEWS for release
+
+Petr Mrázek (1):
+      Bug 29051 – Configuration reload on every query
+
+Thanks to our contributors.
+
+David Zeuthen,
+August 9, 2010
+
+--------------
 PolicyKit 0.96
 --------------
 

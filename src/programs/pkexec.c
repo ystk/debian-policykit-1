@@ -34,14 +34,26 @@
 #include <grp.h>
 #include <pwd.h>
 #include <errno.h>
+
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
+
+#include <glib/gi18n.h>
+
+#ifdef POLKIT_AUTHFW_PAM
 #include <security/pam_appl.h>
+#endif /* POLKIT_AUTHFW_PAM */
+
 #include <syslog.h>
 #include <stdarg.h>
 
 #include <polkit/polkit.h>
+#define POLKIT_AGENT_I_KNOW_API_IS_SUBJECT_TO_CHANGE
+#include <polkitagent/polkitagent.h>
 
 static gchar *original_user_name = NULL;
-static gchar *original_cwd = NULL;
+static gchar original_cwd[PATH_MAX];
 static gchar *command_line = NULL;
 static struct passwd *pw;
 
@@ -62,6 +74,7 @@ usage (int argc, char *argv[])
 {
   g_printerr ("pkexec --version |\n"
               "       --help |\n"
+              "       --disable-internal-agent |\n"
               "       [--user username] PROGRAM [ARGUMENTS...]\n"
               "\n"
               "See the pkexec manual page for more details.\n");
@@ -115,6 +128,7 @@ log_message (gint     level,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+#ifdef POLKIT_AUTHFW_PAM
 static int
 pam_conversation_function (int n,
                            const struct pam_message **msg,
@@ -167,6 +181,7 @@ out:
     pam_end (pam_h, rc);
   return ret;
 }
+#endif /* POLKIT_AUTHFW_PAM */
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -214,7 +229,8 @@ fdwalk (FdCallback callback,
 
 static gchar *
 find_action_for_path (PolkitAuthority *authority,
-                      const gchar     *path)
+                      const gchar     *path,
+                      gboolean        *allow_gui)
 {
   GList *l;
   GList *actions;
@@ -224,6 +240,7 @@ find_action_for_path (PolkitAuthority *authority,
   actions = NULL;
   action_id = NULL;
   error = NULL;
+  *allow_gui = FALSE;
 
   actions = polkit_authority_enumerate_actions_sync (authority,
                                                      NULL,
@@ -239,6 +256,7 @@ find_action_for_path (PolkitAuthority *authority,
     {
       PolkitActionDescription *action_desc = POLKIT_ACTION_DESCRIPTION (l->data);
       const gchar *path_for_action;
+      const gchar *allow_gui_annotation;
 
       path_for_action = polkit_action_description_get_annotation (action_desc, "org.freedesktop.policykit.exec.path");
       if (path_for_action == NULL)
@@ -247,6 +265,12 @@ find_action_for_path (PolkitAuthority *authority,
       if (g_strcmp0 (path_for_action, path) == 0)
         {
           action_id = g_strdup (polkit_action_description_get_action_id (action_desc));
+
+          allow_gui_annotation = polkit_action_description_get_annotation (action_desc, "org.freedesktop.policykit.exec.allow_gui");
+
+          if (allow_gui_annotation != NULL && strlen (allow_gui_annotation) > 0)
+            *allow_gui = TRUE;
+
           goto out;
         }
     }
@@ -337,7 +361,7 @@ validate_environment_variable (const gchar *key,
           goto out;
         }
     }
-  else if (strstr (value, "/") != NULL ||
+  else if ((g_strcmp0 (key, "XAUTHORITY") != 0 && strstr (value, "/") != NULL) ||
            strstr (value, "%") != NULL ||
            strstr (value, "..") != NULL)
     {
@@ -355,6 +379,7 @@ validate_environment_variable (const gchar *key,
   return ret;
 }
 
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 int
@@ -365,12 +390,14 @@ main (int argc, char *argv[])
   gint rc;
   gboolean opt_show_help;
   gboolean opt_show_version;
+  gboolean opt_disable_internal_agent;
   PolkitAuthority *authority;
   PolkitAuthorizationResult *result;
   PolkitSubject *subject;
   PolkitDetails *details;
   GError *error;
   gchar *action_id;
+  gboolean allow_gui;
   gchar **exec_argv;
   gchar *path;
   struct passwd pwstruct;
@@ -391,27 +418,26 @@ main (int argc, char *argv[])
     "TERM",
     "COLORTERM",
 
-    /* For now, avoiding pretend that running X11 apps as another user in the same session
-     * will ever work... See
+    /* By default we don't allow running X11 apps, as it does not work in the
+     * general case. See
      *
      *  https://bugs.freedesktop.org/show_bug.cgi?id=17970#c26
      *
      * and surrounding comments for a lot of discussion about this.
+     *
+     * However, it can be enabled for some selected and tested legacy programs
+     * which previously used e. g. gksu, by setting the
+     * org.freedesktop.policykit.exec.allow_gui annotation to a nonempty value.
+     * See https://bugs.freedesktop.org/show_bug.cgi?id=38769 for details.
      */
-#if 0
-    "DESKTOP_STARTUP_ID",
     "DISPLAY",
     "XAUTHORITY",
-    "DBUS_SESSION_BUS_ADDRESS",
-    "ORBIT_SOCKETDIR",
-#endif
     NULL
   };
   GPtrArray *saved_env;
   gchar *opt_user;
   pid_t pid_of_caller;
-  uid_t uid_of_caller;
-  struct stat statbuf;
+  gpointer local_agent_handle;
 
   ret = 127;
   authority = NULL;
@@ -423,6 +449,7 @@ main (int argc, char *argv[])
   path = NULL;
   command_line = NULL;
   opt_user = NULL;
+  local_agent_handle = NULL;
 
   /* check for correct invocation */
   if (geteuid () != 0)
@@ -438,10 +465,10 @@ main (int argc, char *argv[])
       goto out;
     }
 
-  original_cwd = g_strdup (get_current_dir_name ());
-  if (original_cwd == NULL)
+  if (getcwd (original_cwd, sizeof (original_cwd)) == NULL)
     {
-      g_printerr ("Error getting cwd.\n");
+      g_printerr ("Error getting cwd: %s\n",
+                  g_strerror (errno));
       goto out;
     }
 
@@ -450,6 +477,7 @@ main (int argc, char *argv[])
    */
   opt_show_help = FALSE;
   opt_show_version = FALSE;
+  opt_disable_internal_agent = FALSE;
   for (n = 1; n < (guint) argc; n++)
     {
       if (strcmp (argv[n], "--help") == 0)
@@ -470,6 +498,10 @@ main (int argc, char *argv[])
             }
 
           opt_user = g_strdup (argv[n]);
+        }
+      else if (strcmp (argv[n], "--disable-internal-agent") == 0)
+        {
+          opt_disable_internal_agent = TRUE;
         }
       else
         {
@@ -520,9 +552,9 @@ main (int argc, char *argv[])
       g_free (path);
       argv[n] = path = s;
     }
-  if (stat (path, &statbuf) != 0)
+  if (access (path, F_OK) != 0)
     {
-      g_printerr ("Error getting information about %s: %s\n", path, g_strerror (errno));
+      g_printerr ("Error accessing %s: %s\n", path, g_strerror (errno));
       goto out;
     }
   command_line = g_strjoinv (" ", argv + n);
@@ -579,57 +611,96 @@ main (int argc, char *argv[])
    */
   g_type_init ();
 
-  /* now check if the program that invoked us is authorized */
+  /* make sure we are nuked if the parent process dies */
+#ifdef __linux__
+  if (prctl (PR_SET_PDEATHSIG, SIGTERM) != 0)
+    {
+      g_printerr ("prctl(PR_SET_PDEATHSIG, SIGTERM) failed: %s\n", g_strerror (errno));
+      goto out;
+    }
+#else
+#warning "Please add OS specific code to catch when the parent dies"
+#endif
+
+  /* Figure out the parent process */
   pid_of_caller = getppid ();
   if (pid_of_caller == 1)
     {
       /* getppid() can return 1 if the parent died (meaning that we are reaped
-       * by /sbin/init); get process group leader instead - for example, this
-       * happens when launching via gnome-panel (alt+f2, then 'pkexec gedit').
+       * by /sbin/init); In that case we simpy bail.
        */
-      pid_of_caller = getpgrp ();
-    }
-
-  subject = polkit_unix_process_new (pid_of_caller);
-  if (subject == NULL)
-    {
-      g_printerr ("No such process for pid %d: %s\n", (gint) pid_of_caller, error->message);
-      g_error_free (error);
+      g_printerr ("Refusing to render service to dead parents.\n");
       goto out;
     }
 
-  /* paranoia: check that the uid of pid_of_caller matches getuid() */
+  /* This process we want to check an authorization for is the process
+   * that launched us - our parent process.
+   *
+   * At the time the parent process fork()'ed and exec()'ed us, the
+   * process had the same real-uid that we have now. So we use this
+   * real-uid instead of of looking it up to avoid TOCTTOU issues
+   * (consider the parent process exec()'ing a setuid helper).
+   *
+   * On the other hand, the monotonic process start-time is guaranteed
+   * to never change so it's safe to look that up given only the PID
+   * since we are guaranteed to be nuked if the parent goes away
+   * (cf. the prctl(2) call above).
+   */
+  subject = polkit_unix_process_new_for_owner (pid_of_caller,
+                                               0, /* 0 means "look up start-time in /proc" */
+                                               getuid ());
+  /* really double-check the invariants guaranteed by the PolkitUnixProcess class */
+  g_assert (subject != NULL);
+  g_assert (polkit_unix_process_get_pid (POLKIT_UNIX_PROCESS (subject)) == pid_of_caller);
+  g_assert (polkit_unix_process_get_uid (POLKIT_UNIX_PROCESS (subject)) >= 0);
+  g_assert (polkit_unix_process_get_start_time (POLKIT_UNIX_PROCESS (subject)) > 0);
+
   error = NULL;
-  uid_of_caller = polkit_unix_process_get_owner (POLKIT_UNIX_PROCESS (subject),
-                                                 &error);
-  if (error != NULL)
+  authority = polkit_authority_get_sync (NULL /* GCancellable* */, &error);
+  if (authority == NULL)
     {
-      g_printerr ("Error determing pid of caller (pid %d): %s\n", (gint) pid_of_caller, error->message);
+      g_printerr ("Error getting authority: %s\n", error->message);
       g_error_free (error);
       goto out;
     }
-  if (uid_of_caller != getuid ())
-    {
-      g_printerr ("User of caller (%d) does not match our uid (%d)\n", uid_of_caller, getuid ());
-      goto out;
-    }
 
-  authority = polkit_authority_get ();
-
-  details = polkit_details_new ();
-
-  polkit_details_insert (details, "command-line", command_line);
-  s = g_strdup_printf ("%s (%s)", pw->pw_gecos, pw->pw_name);
-  polkit_details_insert (details, "user", s);
-  g_free (s);
-  s = g_strdup_printf ("%d", (gint) pw->pw_uid);
-  polkit_details_insert (details, "uid", s);
-  g_free (s);
-  polkit_details_insert (details, "program", path);
-
-  action_id = find_action_for_path (authority, path);
+  action_id = find_action_for_path (authority, path, &allow_gui);
   g_assert (action_id != NULL);
 
+  details = polkit_details_new ();
+  if (pw->pw_gecos != NULL && strlen (pw->pw_gecos) > 0)
+    s = g_strdup_printf ("%s (%s)", pw->pw_gecos, pw->pw_name);
+  else
+    s = g_strdup_printf ("%s", pw->pw_name);
+  polkit_details_insert (details, "user", s);
+  g_free (s);
+  polkit_details_insert (details, "program", path);
+  polkit_details_insert (details, "command_line", command_line);
+  if (g_strcmp0 (action_id, "org.freedesktop.policykit.exec") == 0)
+    {
+      if (pw->pw_uid == 0)
+        {
+          polkit_details_insert (details, "polkit.message",
+                                 /* Translators: message shown when trying to run a program as root. Do not
+                                  * translate the $(program) fragment - it will be expanded to the path
+                                  * of the program e.g.  /bin/bash.
+                                  */
+                                 N_("Authentication is needed to run `$(program)' as the super user"));
+        }
+      else
+        {
+          polkit_details_insert (details, "polkit.message",
+                                 /* Translators: message shown when trying to run a program as another user.
+                                  * Do not translate the $(program) or $(user) fragments - the former will
+                                  * be expanded to the path of the program e.g. "/bin/bash" and the latter
+                                  * to the user e.g. "John Doe (johndoe)" or "johndoe".
+                                  */
+                                 N_("Authentication is needed to run `$(program)' as user $(user)"));
+        }
+    }
+  polkit_details_insert (details, "polkit.gettext_domain", GETTEXT_PACKAGE);
+
+ try_again:
   error = NULL;
   result = polkit_authority_check_authorization_sync (authority,
                                                       subject,
@@ -652,15 +723,56 @@ main (int argc, char *argv[])
     }
   else if (polkit_authorization_result_get_is_challenge (result))
     {
-      g_printerr ("Error executing command as another user: No authentication agent was found.\n");
-      goto out;
+      if (local_agent_handle == NULL && !opt_disable_internal_agent)
+        {
+          PolkitAgentListener *listener;
+          error = NULL;
+          /* this will fail if we can't find a controlling terminal */
+          listener = polkit_agent_text_listener_new (NULL, &error);
+          if (listener == NULL)
+            {
+              g_printerr ("Error creating textual authentication agent: %s\n", error->message);
+              g_error_free (error);
+              goto out;
+            }
+          local_agent_handle = polkit_agent_listener_register (listener,
+                                                               POLKIT_AGENT_REGISTER_FLAGS_RUN_IN_THREAD,
+                                                               subject,
+                                                               NULL, /* object_path */
+                                                               NULL, /* GCancellable */
+                                                               &error);
+          g_object_unref (listener);
+          if (local_agent_handle == NULL)
+            {
+              g_printerr ("Error registering local authentication agent: %s\n", error->message);
+              g_error_free (error);
+              goto out;
+            }
+          g_object_unref (result);
+          result = NULL;
+          goto try_again;
+        }
+      else
+        {
+          g_printerr ("Error executing command as another user: No authentication agent found.\n");
+          goto out;
+        }
     }
   else
     {
-      log_message (LOG_WARNING, TRUE,
-                   "Error executing command as another user: Not authorized");
-      g_printerr ("\n"
-                  "This incident has been reported.\n");
+      if (polkit_authorization_result_get_dismissed (result))
+        {
+          log_message (LOG_WARNING, TRUE,
+                       "Error executing command as another user: Request dismissed");
+          ret = 126;
+        }
+      else
+        {
+          log_message (LOG_WARNING, TRUE,
+                       "Error executing command as another user: Not authorized");
+          g_printerr ("\n"
+                      "This incident has been reported.\n");
+        }
       goto out;
     }
 
@@ -687,6 +799,11 @@ main (int argc, char *argv[])
     {
       const gchar *key = saved_env->pdata[n];
       const gchar *value = saved_env->pdata[n + 1];
+
+      /* Only set $DISPLAY and $XAUTHORITY when explicitly allowed in the .policy */
+      if (!allow_gui &&
+              (strcmp (key, "DISPLAY") == 0 || strcmp (key, "XAUTHORITY") == 0))
+          continue;
 
       if (!g_setenv (key, value, TRUE))
         {
@@ -742,10 +859,12 @@ main (int argc, char *argv[])
    * TODO: The question here is whether we should clear the limits before applying them?
    * As evident above, neither su(1) (and, for that matter, nor sudo(8)) does this.
    */
+#ifdef POLKIT_AUTHFW_PAM
   if (!open_session (pw->pw_name))
     {
       goto out;
     }
+#endif /* POLKIT_AUTHFW_PAM */
 
   /* become the user */
   if (setgroups (0, NULL) != 0)
@@ -788,6 +907,10 @@ main (int argc, char *argv[])
   g_assert_not_reached ();
 
  out:
+  /* if applicable, nuke the local authentication agent */
+  if (local_agent_handle != NULL)
+    polkit_agent_listener_unregister (local_agent_handle);
+
   if (result != NULL)
     g_object_unref (result);
 
@@ -812,7 +935,6 @@ main (int argc, char *argv[])
   g_free (command_line);
   g_free (opt_user);
   g_free (original_user_name);
-  g_free (original_cwd);
 
   return ret;
 }
