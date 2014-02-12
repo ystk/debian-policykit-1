@@ -6,6 +6,7 @@ polkit_implicit_authorization_get_type
 polkit_identity_get_type
 polkit_unix_user_get_type
 polkit_unix_group_get_type
+polkit_unix_netgroup_get_type
 polkit_subject_get_type
 polkit_unix_process_get_type
 polkit_unix_session_get_type
@@ -13,6 +14,7 @@ polkit_system_bus_name_get_type
 polkit_error_get_type
 polkit_authorization_result_get_type
 polkit_temporary_authorization_get_type
+polkit_permission_get_type
 
 polkit_backend_authority_get_type
 polkit_backend_interactive_authority_get_type
@@ -25,3 +27,4 @@ polkit_backend_local_authorization_store_get_type
 
 polkit_agent_session_get_type
 polkit_agent_listener_get_type
+polkit_agent_text_listener_get_type

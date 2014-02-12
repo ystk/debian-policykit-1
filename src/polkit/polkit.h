@@ -33,6 +33,7 @@
 #include <polkit/polkitidentity.h>
 #include <polkit/polkitunixuser.h>
 #include <polkit/polkitunixgroup.h>
+#include <polkit/polkitunixnetgroup.h>
 #include <polkit/polkitsubject.h>
 #include <polkit/polkitunixprocess.h>
 #include <polkit/polkitunixsession.h>
@@ -42,6 +43,7 @@
 #include <polkit/polkitauthority.h>
 #include <polkit/polkitdetails.h>
 #include <polkit/polkittemporaryauthorization.h>
+#include <polkit/polkitpermission.h>
 
 #undef _POLKIT_INSIDE_POLKIT_H
 

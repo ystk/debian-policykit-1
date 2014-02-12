@@ -223,6 +223,18 @@ System Context         |                        |
       implemention for systems without a <literal>root</literal>
       account.
     </para>
+
+    <para>
+      Applications that do not run under a desktop environment (for
+      example, if launched from a
+      <citerefentry><refentrytitle>ssh</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+      login) may not have have an authentication agent associated with
+      them. Such applications may use the <link
+      linkend="PolkitAgentTextListener-struct">PolkitAgentTextListener</link>
+      type or the
+      <citerefentry><refentrytitle>pkttyagent</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+      helper so the user can authenticate using a textual interface.
+    </para>
   </refsect1>
 
   <refsect1 id="polkit-declaring-actions"><title>DECLARING ACTIONS</title>
@@ -369,8 +381,7 @@ System Context         |                        |
         the <literal>key</literal> attribute and the value is
         specified using the <literal>value</literal> attribute. This
         element may appear zero or more times. See
-            <citerefentry><refentrytitle>pkexec</refentrytitle><manvolnum>1</manvolnum></citerefentry>
-            for an example of how this can be used. </para></listitem>
+            below for known annotations. </para></listitem>
       </varlistentry>
       <varlistentry>
         <term><emphasis>vendor</emphasis></term>
@@ -398,6 +409,41 @@ System Context         |                        |
       <citerefentry><refentrytitle>pkaction</refentrytitle><manvolnum>1</manvolnum></citerefentry>
       command.
     </para>
+
+    <refsect2><title>Known annotations</title>
+    <para>
+      The <literal>org.freedesktop.policykit.exec.path</literal>
+      annotation is used by the <command>pkexec</command> program
+      shipped with PolicyKit - see the
+      <citerefentry><refentrytitle>pkexec</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+      man page for details.
+    </para>
+    <para>
+      The <literal>org.freedesktop.policykit.imply</literal>
+      annotation (its value is a string containing a space separated
+      list of action identifiers) can be used to define <emphasis>meta
+      actions</emphasis>. The way it works is that if a subject is
+      authorized for an action with this annotation, then it is also
+      authorized for any action specified by the annotation. A typical
+      use of this annotation is when defining an UI shell with a
+      single lock button that should unlock multiple actions from
+      distinct mechanisms.
+    </para>
+    <para>
+      The <literal>org.freedesktop.policykit.owner</literal>
+      annotation can be used to define a set of users who can query
+      whether a client is authorized to perform this action.  If this
+      annotation is not specified then only root can query whether a
+      client running as a different user is authorized for an action.
+      The value of this annotation is a string containing a space
+      separated list of <link
+      linkend="PolkitIdentity-struct">PolkitIdentity</link> entries,
+      for example <literal>"unix-user:42 unix-user:colord"</literal>.
+      A typical use of this annotation is for a daemon process that
+      runs as a system user rather than root.
+    </para>
+    </refsect2>
+
   </refsect1>
 
   <refsect1 id="polkit-author"><title>AUTHOR</title>
@@ -435,6 +481,9 @@ System Context         |                        |
       <citerefentry>
         <refentrytitle>pkexec</refentrytitle><manvolnum>1</manvolnum>
       </citerefentry>,
+      <citerefentry>
+        <refentrytitle>pkttyagent</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>
     </para>
   </refsect1>
 </refentry>

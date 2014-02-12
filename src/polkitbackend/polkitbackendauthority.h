@@ -28,7 +28,8 @@
 
 #include <glib-object.h>
 
-#include "polkitbackendtypes.h"
+#include <polkit/polkit.h>
+#include <polkitbackend/polkitbackendtypes.h>
 
 G_BEGIN_DECLS
 
@@ -61,7 +62,10 @@ struct _PolkitBackendAuthority
 /**
  * PolkitBackendAuthorityClass:
  * @parent_class: The parent class.
- * @changed: Function pointer for #PolkitBackendAuthorityClass::changed signal.
+ * @get_name: Function pointer for the polkit_backend_authority_get_name() function.
+ * @get_version: Function pointer for the polkit_backend_authority_get_version() function.
+ * @get_features: Function pointer for the polkit_backend_authority_get_features() function.
+ * @changed: Function pointer for #PolkitBackendAuthority::changed signal.
  * @enumerate_actions: Enumerates registered actions on the
  * system. See polkit_backend_authority_enumerate_actions() for
  * details.
@@ -98,13 +102,8 @@ struct _PolkitBackendAuthority
  * authorization identified by id or %NULL if the backend doesn't support
  * the operation. See polkit_backend_authority_revoke_temporary_authorization_by_id()
  * for details.
- * @add_lockdown_for_action: Called to add lock down for an action. See polkit_backend_authority_add_lockdown_for_action() for details. Can be %NULL if not supported by the backend.
- * @add_lockdown_for_action_finish: Called to finish adding lock down for an an action. See polkit_backend_authority_add_lockdown_for_action_finish() for details. Can be %NULL if not supported by the backend.
- * @remove_lockdown_for_action: Called when removing lock down for an action. See polkit_backend_authority_remove_lockdown_for_action() for details. Can be %NULL if not supported by the backend.
- * @remove_lockdown_for_action_finish: Called to finish removing lock down for an action. See polkit_backend_authority_remove_lockdown_for_action_finish() for details. Can be %NULL if not supported by the backend.
- * @system_bus_name_owner_changed: temporary VFunc, to be removed before API is declared stable.
  *
- * VFuncs that authority backends need to implement.
+ * Class structure for #PolkitBackendAuthority.
  */
 struct _PolkitBackendAuthorityClass
 {
@@ -144,6 +143,7 @@ struct _PolkitBackendAuthorityClass
                                              PolkitSubject            *subject,
                                              const gchar              *locale,
                                              const gchar              *object_path,
+                                             GVariant                 *options,
                                              GError                  **error);
 
   gboolean (*unregister_authentication_agent) (PolkitBackendAuthority   *authority,
@@ -172,32 +172,6 @@ struct _PolkitBackendAuthorityClass
                                                     PolkitSubject            *caller,
                                                     const gchar              *id,
                                                     GError                  **error);
-
-  void (*add_lockdown_for_action) (PolkitBackendAuthority  *authority,
-                                   PolkitSubject           *caller,
-                                   const gchar             *action_id,
-                                   GAsyncReadyCallback      callback,
-                                   gpointer                 user_data);
-
-  gboolean (*add_lockdown_for_action_finish) (PolkitBackendAuthority  *authority,
-                                              GAsyncResult            *res,
-                                              GError                 **error);
-
-  void (*remove_lockdown_for_action) (PolkitBackendAuthority  *authority,
-                                      PolkitSubject           *caller,
-                                      const gchar             *action_id,
-                                      GAsyncReadyCallback      callback,
-                                      gpointer                 user_data);
-
-  gboolean (*remove_lockdown_for_action_finish) (PolkitBackendAuthority  *authority,
-                                                 GAsyncResult            *res,
-                                                 GError                 **error);
-
-  /* TODO: need something more efficient such that we don't watch all name changes */
-  void (*system_bus_name_owner_changed)  (PolkitBackendAuthority   *authority,
-                                          const gchar              *name,
-                                          const gchar              *old_owner,
-                                          const gchar              *new_owner);
 
   /*< private >*/
   /* Padding for future expansion */
@@ -247,11 +221,6 @@ void     polkit_backend_authority_log (PolkitBackendAuthority *authority,
                                        const gchar *format,
                                        ...);
 
-void     polkit_backend_authority_system_bus_name_owner_changed (PolkitBackendAuthority   *authority,
-                                                                 const gchar              *name,
-                                                                 const gchar              *old_owner,
-                                                                 const gchar              *new_owner);
-
 GList   *polkit_backend_authority_enumerate_actions         (PolkitBackendAuthority    *authority,
                                                              PolkitSubject             *caller,
                                                              const gchar               *locale,
@@ -276,6 +245,7 @@ gboolean polkit_backend_authority_register_authentication_agent (PolkitBackendAu
                                                                  PolkitSubject             *subject,
                                                                  const gchar               *locale,
                                                                  const gchar               *object_path,
+                                                                 GVariant                  *options,
                                                                  GError                   **error);
 
 gboolean polkit_backend_authority_unregister_authentication_agent (PolkitBackendAuthority    *authority,
@@ -305,34 +275,16 @@ gboolean polkit_backend_authority_revoke_temporary_authorization_by_id (PolkitBa
                                                                         const gchar              *id,
                                                                         GError                  **error);
 
-void polkit_backend_authority_add_lockdown_for_action (PolkitBackendAuthority  *authority,
-                                                       PolkitSubject           *caller,
-                                                       const gchar             *action_id,
-                                                       GAsyncReadyCallback      callback,
-                                                       gpointer                 user_data);
-
-gboolean polkit_backend_authority_add_lockdown_for_action_finish (PolkitBackendAuthority  *authority,
-                                                                  GAsyncResult            *res,
-                                                                  GError                 **error);
-
-void polkit_backend_authority_remove_lockdown_for_action (PolkitBackendAuthority  *authority,
-                                                          PolkitSubject           *caller,
-                                                          const gchar             *action_id,
-                                                          GAsyncReadyCallback      callback,
-                                                          gpointer                 user_data);
-
-gboolean polkit_backend_authority_remove_lockdown_for_action_finish (PolkitBackendAuthority  *authority,
-                                                                     GAsyncResult            *res,
-                                                                     GError                 **error);
-
 /* --- */
 
 PolkitBackendAuthority *polkit_backend_authority_get (void);
 
-gboolean polkit_backend_register_authority (PolkitBackendAuthority   *authority,
-                                            const gchar              *well_known_name,
+gpointer polkit_backend_authority_register (PolkitBackendAuthority   *authority,
+                                            GDBusConnection          *connection,
                                             const gchar              *object_path,
                                             GError                  **error);
+
+void polkit_backend_authority_unregister (gpointer registration_id);
 
 G_END_DECLS
 

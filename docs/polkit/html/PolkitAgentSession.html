@@ -3,36 +3,21 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>PolkitAgentSession</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
-<link rel="home" href="index.html" title="PolicyKit Reference Manual">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="polkit Reference Manual">
 <link rel="up" href="ref-authentication-agent-api.html" title="Part V. Authentication Agent API Reference">
-<link rel="prev" href="PolkitAgentListener.html" title="PolkitAgentListener">
+<link rel="prev" href="PolkitAgentTextListener.html" title="PolkitAgentTextListener">
 <link rel="next" href="manpages.html" title="Part VI. Manual Pages">
-<meta name="generator" content="GTK-Doc V1.13 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
-<link rel="part" href="overview.html" title="Part I. PolicyKit Overview">
-<link rel="chapter" href="polkit-intro.html" title="Introduction">
-<link rel="chapter" href="polkit-apps.html" title="Writing PolicyKit applications">
-<link rel="chapter" href="polkit-agents.html" title="Writing PolicyKit Authentication Agents">
-<link rel="chapter" href="polkit-extending.html" title="Extending PolicyKit">
-<link rel="part" href="ref-dbus-api.html" title="Part II. D-Bus API Reference">
-<link rel="part" href="ref-api.html" title="Part III. Client API Reference">
-<link rel="chapter" href="subjects.html" title="Subjects">
-<link rel="chapter" href="Identities.html" title="Identities">
-<link rel="part" href="ref-backend-api.html" title="Part IV. Backend API Reference">
-<link rel="part" href="ref-authentication-agent-api.html" title="Part V. Authentication Agent API Reference">
-<link rel="part" href="manpages.html" title="Part VI. Manual Pages">
-<link rel="chapter" href="polkit-hierarchy.html" title="Object Hierarchy">
-<link rel="index" href="polit-index.html" title="Index">
-<link rel="appendix" href="license.html" title="Appendix A. License">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
 <tr valign="middle">
-<td><a accesskey="p" href="PolkitAgentListener.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="p" href="PolkitAgentTextListener.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
 <td><a accesskey="u" href="ref-authentication-agent-api.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
-<th width="100%" align="center">PolicyKit Reference Manual</th>
+<th width="100%" align="center">polkit Reference Manual</th>
 <td><a accesskey="n" href="manpages.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
 <tr><td colspan="5" class="shortcuts">
@@ -42,10 +27,12 @@
                    | 
                   <a href="#PolkitAgentSession.object-hierarchy" class="shortcut">Object Hierarchy</a>
                    | 
+                  <a href="#PolkitAgentSession.properties" class="shortcut">Properties</a>
+                   | 
                   <a href="#PolkitAgentSession.signals" class="shortcut">Signals</a>
 </td></tr>
 </table>
-<div class="refentry" title="PolkitAgentSession">
+<div class="refentry">
 <a name="PolkitAgentSession"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
@@ -54,38 +41,45 @@
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsect1" title="Stability Level">
+<div class="refsect1">
 <a name="PolkitAgentSession.stability-level"></a><h2>Stability Level</h2>
 Unstable, unless otherwise indicated
 </div>
-<div class="refsynopsisdiv" title="Synopsis">
+<div class="refsynopsisdiv">
 <a name="PolkitAgentSession.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">                    <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-struct" title="PolkitAgentSession">PolkitAgentSession</a>;
-<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> * <a class="link" href="PolkitAgentSession.html#polkit-agent-session-new" title="polkit_agent_session_new ()">polkit_agent_session_new</a>           (<a class="link" href="polkit-1-polkitidentity.html#PolkitIdentity"><span class="returnvalue">PolkitIdentity</span></a> *identity,
-                                                         const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *cookie);
-<span class="returnvalue">void</span>                <a class="link" href="PolkitAgentSession.html#polkit-agent-session-initiate" title="polkit_agent_session_initiate ()">polkit_agent_session_initiate</a>       (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> *session);
-<span class="returnvalue">void</span>                <a class="link" href="PolkitAgentSession.html#polkit-agent-session-response" title="polkit_agent_session_response ()">polkit_agent_session_response</a>       (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> *session,
-                                                         const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *response);
-<span class="returnvalue">void</span>                <a class="link" href="PolkitAgentSession.html#polkit-agent-session-cancel" title="polkit_agent_session_cancel ()">polkit_agent_session_cancel</a>         (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> *session);
+<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> * <a class="link" href="PolkitAgentSession.html#polkit-agent-session-new" title="polkit_agent_session_new ()">polkit_agent_session_new</a>           (<em class="parameter"><code><a class="link" href="PolkitIdentity.html" title="PolkitIdentity"><span class="type">PolkitIdentity</span></a> *identity</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *cookie</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PolkitAgentSession.html#polkit-agent-session-initiate" title="polkit_agent_session_initiate ()">polkit_agent_session_initiate</a>       (<em class="parameter"><code><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PolkitAgentSession.html#polkit-agent-session-response" title="polkit_agent_session_response ()">polkit_agent_session_response</a>       (<em class="parameter"><code><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *response</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="PolkitAgentSession.html#polkit-agent-session-cancel" title="polkit_agent_session_cancel ()">polkit_agent_session_cancel</a>         (<em class="parameter"><code><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session</code></em>);
 </pre>
 </div>
-<div class="refsect1" title="Object Hierarchy">
+<div class="refsect1">
 <a name="PolkitAgentSession.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
    +----PolkitAgentSession
 </pre>
 </div>
-<div class="refsect1" title="Signals">
-<a name="PolkitAgentSession.signals"></a><h2>Signals</h2>
+<div class="refsect1">
+<a name="PolkitAgentSession.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
-  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-completed" title='The "completed" signal'>completed</a>"                                      : Run Last
-  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-request" title='The "request" signal'>request</a>"                                        : Run Last
-  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-show-error" title='The "show-error" signal'>show-error</a>"                                     : Run Last
-  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-show-info" title='The "show-info" signal'>show-info</a>"                                      : Run Last
+  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession--cookie" title='The "cookie" property'>cookie</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct Only
+  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession--identity" title='The "identity" property'>identity</a>"                 <a class="link" href="PolkitIdentity.html" title="PolkitIdentity"><span class="type">PolkitIdentity</span></a>*       : Read / Write / Construct Only
 </pre>
 </div>
-<div class="refsect1" title="Description">
+<div class="refsect1">
+<a name="PolkitAgentSession.signals"></a><h2>Signals</h2>
+<pre class="synopsis">
+  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-completed" title='The "completed" signal'>completed</a>"                                      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a>
+  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-request" title='The "request" signal'>request</a>"                                        : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a>
+  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-show-error" title='The "show-error" signal'>show-error</a>"                                     : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a>
+  "<a class="link" href="PolkitAgentSession.html#PolkitAgentSession-show-info" title='The "show-info" signal'>show-info</a>"                                      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a>
+</pre>
+</div>
+<div class="refsect1">
 <a name="PolkitAgentSession.description"></a><h2>Description</h2>
 <p>
 The <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> class is an abstraction used for interacting with the
@@ -105,28 +99,30 @@ signals and invoke <a class="link" href="PolkitAgentSession.html#polkit-agent-se
 </p>
 <p>
 If the user successfully authenticates, the authentication helper will invoke
-a method on the PolicyKit daemon (see <a class="link" href="polkit-1-polkitauthority.html#polkit-authority-authentication-agent-response-sync" title="polkit_authority_authentication_agent_response_sync ()"><code class="function">polkit_authority_authentication_agent_response_sync()</code></a>)
+a method on the PolicyKit daemon (see <a class="link" href="PolkitAuthority.html#polkit-authority-authentication-agent-response-sync" title="polkit_authority_authentication_agent_response_sync ()"><code class="function">polkit_authority_authentication_agent_response_sync()</code></a>)
 with the given <em class="parameter"><code>cookie</code></em>. Upon receiving a positive response from the PolicyKit daemon (via
 the authentication helper), the <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-completed" title='The "completed" signal'><span class="type">"completed"</span></a> signal will be emitted
 with the <em class="parameter"><code>gained_authorization</code></em> paramter set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>.
 </p>
 <p>
 If the user is unable to authenticate, the <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-completed" title='The "completed" signal'><span class="type">"completed"</span></a> signal will
-be emitted with the <em class="parameter"><code>gained_authorization</code></em> paramter set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.</p>
+be emitted with the <em class="parameter"><code>gained_authorization</code></em> paramter set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a>.
+</p>
 </div>
-<div class="refsect1" title="Details">
+<div class="refsect1">
 <a name="PolkitAgentSession.details"></a><h2>Details</h2>
-<div class="refsect2" title="PolkitAgentSession">
+<div class="refsect2">
 <a name="PolkitAgentSession-struct"></a><h3>PolkitAgentSession</h3>
 <pre class="programlisting">typedef struct _PolkitAgentSession PolkitAgentSession;</pre>
 <p>
-The <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> struct should not be accessed directly.</p>
+The <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> struct should not be accessed directly.
+</p>
 </div>
 <hr>
-<div class="refsect2" title="polkit_agent_session_new ()">
+<div class="refsect2">
 <a name="polkit-agent-session-new"></a><h3>polkit_agent_session_new ()</h3>
-<pre class="programlisting"><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> * polkit_agent_session_new           (<a class="link" href="polkit-1-polkitidentity.html#PolkitIdentity"><span class="returnvalue">PolkitIdentity</span></a> *identity,
-                                                         const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *cookie);</pre>
+<pre class="programlisting"><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> * polkit_agent_session_new           (<em class="parameter"><code><a class="link" href="PolkitIdentity.html" title="PolkitIdentity"><span class="type">PolkitIdentity</span></a> *identity</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *cookie</code></em>);</pre>
 <p>
 Creates a new authentication session.
 </p>
@@ -136,113 +132,132 @@ The caller should connect to the
 <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-show-info" title='The "show-info" signal'><span class="type">"show-info"</span></a>,
 <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-show-error" title='The "show-error" signal'><span class="type">"show-error"</span></a> and
 <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-completed" title='The "completed" signal'><span class="type">"completed"</span></a>
-signals and then call <a class="link" href="PolkitAgentSession.html#polkit-agent-session-initiate" title="polkit_agent_session_initiate ()"><code class="function">polkit_agent_session_initiate()</code></a> to initiate the authentication session.</p>
+signals and then call <a class="link" href="PolkitAgentSession.html#polkit-agent-session-initiate" title="polkit_agent_session_initiate ()"><code class="function">polkit_agent_session_initiate()</code></a> to initiate the authentication session.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>identity</code></em> :</span></p></td>
-<td> The identity to authenticate.
-</td>
+<td>The identity to authenticate.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>cookie</code></em> :</span></p></td>
-<td> The cookie obtained from the PolicyKit daemon
-</td>
+<td>The cookie obtained from the PolicyKit daemon</td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>. Free with <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>. Free with <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>.</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="polkit_agent_session_initiate ()">
+<div class="refsect2">
 <a name="polkit-agent-session-initiate"></a><h3>polkit_agent_session_initiate ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                polkit_agent_session_initiate       (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> *session);</pre>
+<pre class="programlisting"><span class="returnvalue">void</span>                polkit_agent_session_initiate       (<em class="parameter"><code><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session</code></em>);</pre>
 <p>
-Initiates the authentication session.
+Initiates the authentication session. Before calling this method,
+make sure to connect to the various signals. The signals will be
+emitted in the <GTKDOCLINK HREF="g-main-context-push-thread-default">thread-default main
+loop</GTKDOCLINK> that this method is invoked from.
 </p>
 <p>
-Use <a class="link" href="PolkitAgentSession.html#polkit-agent-session-cancel" title="polkit_agent_session_cancel ()"><code class="function">polkit_agent_session_cancel()</code></a> to cancel the session.</p>
+Use <a class="link" href="PolkitAgentSession.html#polkit-agent-session-cancel" title="polkit_agent_session_cancel ()"><code class="function">polkit_agent_session_cancel()</code></a> to cancel the session.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr></tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="polkit_agent_session_response ()">
+<div class="refsect2">
 <a name="polkit-agent-session-response"></a><h3>polkit_agent_session_response ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                polkit_agent_session_response       (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> *session,
-                                                         const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *response);</pre>
+<pre class="programlisting"><span class="returnvalue">void</span>                polkit_agent_session_response       (<em class="parameter"><code><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session</code></em>,
+                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *response</code></em>);</pre>
 <p>
 Function for providing response to requests received
-via the <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-request" title='The "request" signal'><span class="type">"request"</span></a> signal.</p>
+via the <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-request" title='The "request" signal'><span class="type">"request"</span></a> signal.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>response</code></em> :</span></p></td>
-<td> Response from the user, typically a password.
-</td>
+<td>Response from the user, typically a password.</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="polkit_agent_session_cancel ()">
+<div class="refsect2">
 <a name="polkit-agent-session-cancel"></a><h3>polkit_agent_session_cancel ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                polkit_agent_session_cancel         (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="returnvalue">PolkitAgentSession</span></a> *session);</pre>
+<pre class="programlisting"><span class="returnvalue">void</span>                polkit_agent_session_cancel         (<em class="parameter"><code><a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session</code></em>);</pre>
 <p>
 Cancels an authentication session. This will make <em class="parameter"><code>session</code></em> emit the <a class="link" href="PolkitAgentSession.html#PolkitAgentSession-completed" title='The "completed" signal'><span class="type">"completed"</span></a>
-signal.</p>
+signal.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr></tbody>
 </table></div>
 </div>
 </div>
-<div class="refsect1" title="Signal Details">
+<div class="refsect1">
+<a name="PolkitAgentSession.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="PolkitAgentSession--cookie"></a><h3>The <code class="literal">"cookie"</code> property</h3>
+<pre class="programlisting">  "cookie"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct Only</pre>
+<p>
+The cookie obtained from the PolicyKit daemon
+</p>
+<p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="PolkitAgentSession--identity"></a><h3>The <code class="literal">"identity"</code> property</h3>
+<pre class="programlisting">  "identity"                 <a class="link" href="PolkitIdentity.html" title="PolkitIdentity"><span class="type">PolkitIdentity</span></a>*       : Read / Write / Construct Only</pre>
+<p>
+The identity to authenticate.
+</p>
+</div>
+</div>
+<div class="refsect1">
 <a name="PolkitAgentSession.signal-details"></a><h2>Signal Details</h2>
-<div class="refsect2" title='The "completed" signal'>
+<div class="refsect2">
 <a name="PolkitAgentSession-completed"></a><h3>The <code class="literal">"completed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>            gained_authorization,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)                 : Run Last</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)                 : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a></pre>
 <p>
 Emitted when the authentication session has been completed or
 cancelled. The <em class="parameter"><code>gained_authorization</code></em> parameter is <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> only if
 the user successfully authenticated.
 </p>
 <p>
-Upon receiving this signal, the user should free <em class="parameter"><code>session</code></em> using <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>.</p>
+Upon receiving this signal, the user should free <em class="parameter"><code>session</code></em> using <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#g-object-unref"><code class="function">g_object_unref()</code></a>.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>gained_authorization</code></em> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> only if the authorization was successfully obtained.
-</td>
+<td>
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> only if the authorization was successfully obtained.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -252,35 +267,34 @@ Upon receiving this signal, the user should free <em class="parameter"><code>ses
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "request" signal'>
+<div class="refsect2">
 <a name="PolkitAgentSession-request"></a><h3>The <code class="literal">"request"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>              *request,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>            echo_on,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)      : Run Last</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a></pre>
 <p>
 Emitted when the user is requested to answer a question.
 </p>
 <p>
-When the response has been collected from the user, call <a class="link" href="PolkitAgentSession.html#polkit-agent-session-response" title="polkit_agent_session_response ()"><code class="function">polkit_agent_session_response()</code></a>.</p>
+When the response has been collected from the user, call <a class="link" href="PolkitAgentSession.html#polkit-agent-session-response" title="polkit_agent_session_response ()"><code class="function">polkit_agent_session_response()</code></a>.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>request</code></em> :</span></p></td>
-<td> The request to show the user, e.g. "name: " or "password: ".
-</td>
+<td>The request to show the user, e.g. "name: " or "password: ".</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>echo_on</code></em> :</span></p></td>
-<td> <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the response to the request SHOULD be echoed on the
-          screen, <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> if the response MUST NOT be echoed to the screen.
-</td>
+<td>
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the response to the request SHOULD be echoed on the
+screen, <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> if the response MUST NOT be echoed to the screen.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -290,25 +304,24 @@ When the response has been collected from the user, call <a class="link" href="P
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "show-error" signal'>
+<div class="refsect2">
 <a name="PolkitAgentSession-show-error"></a><h3>The <code class="literal">"show-error"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>              *text,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)      : Run Last</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a></pre>
 <p>
-Emitted when there is information related to an error condition to be displayed to the user.</p>
+Emitted when there is information related to an error condition to be displayed to the user.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>text</code></em> :</span></p></td>
-<td> An error string to display to the user.
-</td>
+<td>An error string to display to the user.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -318,25 +331,24 @@ Emitted when there is information related to an error condition to be displayed 
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "show-info" signal'>
+<div class="refsect2">
 <a name="PolkitAgentSession-show-info"></a><h3>The <code class="literal">"show-info"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a> *session,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>              *text,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)      : Run Last</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>            user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS"><code class="literal">Run Last</code></a></pre>
 <p>
-Emitted when there is information to be displayed to the user.</p>
+Emitted when there is information to be displayed to the user.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>session</code></em> :</span></p></td>
-<td> A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.
-</td>
+<td>A <a class="link" href="PolkitAgentSession.html" title="PolkitAgentSession"><span class="type">PolkitAgentSession</span></a>.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>text</code></em> :</span></p></td>
-<td> A string to display to the user.
-</td>
+<td>A string to display to the user.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -349,6 +361,6 @@ Emitted when there is information to be displayed to the user.</p>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.13</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

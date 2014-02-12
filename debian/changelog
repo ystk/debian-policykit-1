@@ -1,3 +1,204 @@
+policykit-1 (0.105-3) unstable; urgency=low
+
+  * 07_set-XAUTHORITY-environment-variable-if-unset.patch: Set XAUTHORITY
+    environment variable to its default value $HOME/.Xauthority if unset.
+    Some display managers, like KDM, do not set the XAUTHORITY variable, so
+    starting graphical applications via pkexec was broken in those
+    environments. (Closes: #671497)
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 20 Dec 2012 18:55:14 +0100
+
+policykit-1 (0.105-2) unstable; urgency=low
+
+  * Change the permissions of /etc/polkit-1/localauthority to 700, this
+    directory is not supposed to be readable by everyone.
+
+ -- Michael Biebl <biebl@debian.org>  Mon, 17 Dec 2012 17:02:06 +0100
+
+policykit-1 (0.105-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/watch: Update URL, the tarballs are hosted on freedesktop.org now.
+  * Update symbols file for libpolkit-gobject-1-0 and libpolkit-agent-1-0.
+  * Update debian/copyright using the machine-readable copyright format 1.0.
+  * Bump Standards-Version to 3.9.3.
+  * Bump Build-Depends on debhelper to (>= 9).
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 24 Apr 2012 21:06:04 +0200
+
+policykit-1 (0.104-2) unstable; urgency=low
+
+  * debian/control: Add Build-Depends on libglib2.0-doc and libgtk-3-doc for
+    proper cross-references in the gtk-doc API documentation.
+  * Install systemd service file for polkitd.
+
+ -- Michael Biebl <biebl@debian.org>  Sat, 11 Feb 2012 23:48:29 +0100
+
+policykit-1 (0.104-1) unstable; urgency=low
+
+  * New upstream release.
+    - Add support for netgroups. (LP: #724052)
+  * debian/rules: Disable systemd support, continue to work with ConsokeKit.
+  * 05_revert-admin-identities-unix-group-wheel.patch: Refresh to apply
+    cleanly.
+  * debian/libpolkit-gobject-1-0.symbols: Add new symbols from this new
+    release.
+  * debian/rules: Do not let test failures fail the build. The new test suite
+    also runs a test against the system D-BUS/ConsoleKit, which can't work on
+    buildds.
+
+ -- Martin Pitt <mpitt@debian.org>  Fri, 06 Jan 2012 12:28:54 +0100
+
+policykit-1 (0.103-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control: Change section of gir1.2-polkit-1.0 to introspection.
+  * 05_revert-admin-identities-unix-group-wheel.patch: Revert upstream change
+    to make group wheel the default admin identity since we already use group
+    sudo resp. group admin for that.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 09 Dec 2011 00:48:17 +0100
+
+policykit-1 (0.102-2) unstable; urgency=low
+
+  * 02_gettext.patch: Explicitly #include <locale.h> to fix non-optimized
+    build. Thanks Ivan Krasilnikov for pointing this out.
+  * debian/rules: When building on Ubuntu, also consider the "sudo" group as
+    administrator, for compatibility with Debian and sudo itself. Keep "admin"
+    for existing systems. (LP: #893842)
+  * Convert to Multi-Arch and dh compat 9. Thanks Daniel Schaal for the
+    patch! (Closes: #636196)
+
+ -- Martin Pitt <mpitt@debian.org>  Fri, 25 Nov 2011 07:44:09 +0100
+
+policykit-1 (0.102-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/00git_fix_proc_race.patch: Removed, merged upstream.
+  * debian/patches/04_ignore_quilt_po.patch: Removed, merged upstream.
+  * debian/patches/03_complete_session.patch: Refreshed.
+  * debian/patches/04_get_cwd.patch: Use g_get_current_dir() to determine the
+    current working directory. This fixes another PATH_MAX related FTBFS on
+    hurd. Thanks Emilio Pozuelo Monfort for the patch. (Closes: #623017)
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 02 Aug 2011 03:17:20 +0200
+
+policykit-1 (0.101-4) unstable; urgency=high
+
+  Urgency high due to security fix.
+
+  * Add 00git_fix_proc_race.patch: Avoid /proc race conditions when checking
+    privileges for pkexec. Patch taken from
+    https://bugzilla.redhat.com/show_bug.cgi?id=692922, now also landed in
+    upstream git. [CVE-2011-1485]
+  * debian/libpolkit-gobject-1-0.symbols: Update for new symbols.
+  * Add 04_ignore_quilt_po.patch: Ignore .po/ for intltool. This avoids build
+    failures if quilt patches change files with translatable strings. Thanks
+    to Kees Cook for the patch!
+
+ -- Martin Pitt <mpitt@debian.org>  Wed, 20 Apr 2011 12:11:38 +0200
+
+policykit-1 (0.101-3) unstable; urgency=low
+
+  * debian/control
+    - Add Depends on gir1.2-polkit-1.0 (= ${binary:Version}) to
+      libpolkit-gobject-1-dev and libpolkit-agent-1-dev to comply with the
+      updated GObject introspection policy.
+    - Bump Standards-Version to 3.9.2. No further changes.
+
+ -- Michael Biebl <biebl@debian.org>  Sun, 10 Apr 2011 20:34:03 +0200
+
+policykit-1 (0.101-2) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 25 Mar 2011 02:19:51 +0100
+
+policykit-1 (0.101-1) experimental; urgency=low
+
+  * New upstream release.
+  * Update patches
+    - Drop debian/patches/04_test_signalfd.patch, merged upstream.
+    - Refresh other patches to apply cleanly.
+  * debian/libpolkit-gobject-1-0.symbols
+    - Add polkit_authorization_result_get_dismissed.
+  * debian/control
+    - Bump Build-Depends on libglib2.0-dev to (>= 2.28.0).
+  * debian/rules
+    - Don't build example programs.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 03 Mar 2011 23:50:17 +0100
+
+policykit-1 (0.100-1) experimental; urgency=low
+
+  * New upstream release.
+  * Refresh debian/patches/03_complete_session.patch.
+  * Replace debian/patches/04_test_signalfd.patch with a patch that was merged
+    upstream. This also allows to drop debian/patches/99_autoreconf.patch.
+  * Switch from cdbs to dh.
+  * Bump debhelper compatibility level to 8.
+  * Install documentation using debian/policykit-1.docs.
+  * Enable gobject introspection support.
+    - Add Build-Depends on libgirepository1.0-dev (>= 0.9.12),
+      gobject-introspection (>= 0.9.12-4~) and gir1.2-glib-2.0.
+    - Add package gir1.2-polkit-1.0 containing the typelib files.
+    - Install gir files in libpolkit-agent-1-dev.install and
+      libpolkit-gobject-1-dev.install.
+    - Call dh_girepository in debian/rules.
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 23 Feb 2011 19:51:17 +0100
+
+policykit-1 (0.99-3) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 10 Feb 2011 19:21:36 +0100
+
+policykit-1 (0.99-2) experimental; urgency=low
+
+  [ Michael Biebl ]
+  * Merge sudo group changes from unstable branch.
+
+  [ Martin Pitt ]
+  * debian/rules: Use dpkg-vendor instead of lsb_release. Drop lsb-release
+    build dependency.
+  * Add 04_test_signalfd.patch: Allow building on Non-Linux platforms without
+    signalfd(). (Closes: #602476)
+  * Add 99_autoreconf.patch: Pick up autoreconf changes from previous patch.
+
+ -- Martin Pitt <mpitt@debian.org>  Mon, 06 Dec 2010 16:28:11 +0100
+
+policykit-1 (0.99-1) experimental; urgency=low
+
+  [ Michael Biebl ]
+  * New upstream release.
+  * debian/patches/00git-fix-error-freeing.patch
+    - Remove, fixed upstream.
+  * debian/patches/00git-pkexec-information-disclosure.patch
+    - Remove, merged upstream.
+  * debian/control
+    - Drop Build-Depends on libeggdbus-1-dev.
+    - Bump Build-Depends on libglib2.0-dev to (>= 2.25.12) for GDBus.
+  * Switch to source format 3.0 (quilt).
+    - Add debian/source/format.
+    - Drop Build-Depends on quilt.
+    - Remove /usr/share/cdbs/1/rules/patchsys-quilt.mk from debian/rules.
+    - Remove debian/README.source.
+
+  [ Robert Ancell ]
+  * Add debian/patches/02_gettext.patch: Use gettext for translations in
+    .policy files if they specify a gettext domain.
+
+  [ James Westby ]
+  * Add debian/patches/03_complete_session.patch: Fix the race that leads to
+    the password box disappearing, but the dialog remaining.
+
+  [ Martin Pitt ]
+  * debian/rules: Set DPKG_GENSYMBOLS_CHECK_LEVEL to 4 to point out outdated
+    .symbols files more strongly.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 04 Nov 2010 17:27:09 -0400
+
 policykit-1 (0.96-4) unstable; urgency=low
 
   * debian/rules

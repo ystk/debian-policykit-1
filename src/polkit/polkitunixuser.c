@@ -49,6 +49,7 @@ struct _PolkitUnixUser
   GObject parent_instance;
 
   gint uid;
+  gchar *name;
 };
 
 struct _PolkitUnixUserClass
@@ -71,6 +72,17 @@ G_DEFINE_TYPE_WITH_CODE (PolkitUnixUser, polkit_unix_user, G_TYPE_OBJECT,
 static void
 polkit_unix_user_init (PolkitUnixUser *unix_user)
 {
+  unix_user->name = NULL;
+}
+
+static void
+polkit_unix_user_finalize (GObject *object)
+{
+  PolkitUnixUser *unix_user = POLKIT_UNIX_USER (object);
+
+  g_free(unix_user->name);
+
+  G_OBJECT_CLASS (polkit_unix_user_parent_class)->finalize (object);
 }
 
 static void
@@ -118,6 +130,7 @@ polkit_unix_user_class_init (PolkitUnixUserClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
+  gobject_class->finalize = polkit_unix_user_finalize;
   gobject_class->get_property = polkit_unix_user_get_property;
   gobject_class->set_property = polkit_unix_user_set_property;
 
@@ -153,6 +166,7 @@ polkit_unix_user_class_init (PolkitUnixUserClass *klass)
 gint
 polkit_unix_user_get_uid (PolkitUnixUser *user)
 {
+  g_return_val_if_fail (POLKIT_IS_UNIX_USER (user), -1);
   return user->uid;
 }
 
@@ -167,6 +181,7 @@ void
 polkit_unix_user_set_uid (PolkitUnixUser *user,
                           gint uid)
 {
+  g_return_if_fail (POLKIT_IS_UNIX_USER (user));
   user->uid = uid;
 }
 
@@ -176,7 +191,7 @@ polkit_unix_user_set_uid (PolkitUnixUser *user,
  *
  * Creates a new #PolkitUnixUser object for @uid.
  *
- * Returns: A #PolkitUnixUser object. Free with g_object_unref().
+ * Returns: (transfer full): A #PolkitUnixUser object. Free with g_object_unref().
  */
 PolkitIdentity *
 polkit_unix_user_new (gint uid)
@@ -194,7 +209,7 @@ polkit_unix_user_new (gint uid)
  * Creates a new #PolkitUnixUser object for a user with the user name
  * @name.
  *
- * Returns: A #PolkitUnixUser object or %NULL if @error is set.
+ * Returns: (allow-none) (transfer full): A #PolkitUnixUser object or %NULL if @error is set.
  */
 PolkitIdentity *
 polkit_unix_user_new_for_name (const gchar    *name,
@@ -202,6 +217,9 @@ polkit_unix_user_new_for_name (const gchar    *name,
 {
   struct passwd *passwd;
   PolkitIdentity *identity;
+
+  g_return_val_if_fail (name != NULL, NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   identity = NULL;
 
@@ -221,6 +239,29 @@ polkit_unix_user_new_for_name (const gchar    *name,
 
  out:
   return identity;
+}
+
+/**
+ * polkit_unix_user_get_name:
+ * @user: A #PolkitUnixUser.
+ *
+ * Get the user's name.
+ *
+ * Returns: (allow-none) (transfer none): User name string or %NULL if user uid not found.
+ */
+const gchar *
+polkit_unix_user_get_name (PolkitUnixUser *user)
+{
+  if (user->name == NULL)
+    {
+      struct passwd *passwd;
+      passwd = getpwuid (user->uid);
+
+      if (passwd != NULL)
+        user->name = g_strdup(passwd->pw_name);
+    }
+
+  return user->name;
 }
 
 static gboolean
@@ -250,14 +291,12 @@ static gchar *
 polkit_unix_user_to_string (PolkitIdentity *identity)
 {
   PolkitUnixUser *user = POLKIT_UNIX_USER (identity);
-  struct passwd *passwd;
+  const gchar *user_name = polkit_unix_user_get_name(user);
 
-  passwd = getpwuid (user->uid);
-
-  if (passwd == NULL)
-    return g_strdup_printf ("unix-user:%d", user->uid);
+  if (user_name != NULL)
+    return g_strdup_printf ("unix-user:%s", user_name);
   else
-    return g_strdup_printf ("unix-user:%s", passwd->pw_name);
+    return g_strdup_printf ("unix-user:%d", user->uid);
 }
 
 static void

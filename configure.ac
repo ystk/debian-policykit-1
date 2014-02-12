@@ -1,12 +1,15 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59c)
-AC_INIT(polkit, 0.96, http://lists.freedesktop.org/mailman/listinfo/polkit-devel)
-AM_INIT_AUTOMAKE(polkit, 0.96)
+AC_INIT(polkit, 0.105, http://lists.freedesktop.org/mailman/listinfo/polkit-devel)
+AM_INIT_AUTOMAKE(polkit, 0.105)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+# Include external mocklibc tool for unit testing
+AC_CONFIG_SUBDIRS([test/mocklibc])
 
 # libtool versioning - this applies to all libraries in this package
 #
@@ -120,13 +123,9 @@ if test "x$GCC" = "xyes"; then
   changequote([,])dnl
 fi
 
-PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.21.4 gio-2.0 >= 2.21.4])
+PKG_CHECK_MODULES(GLIB, [gio-2.0 >= 2.28.0])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-PKG_CHECK_MODULES(EGG_DBUS, [eggdbus-1 >= 0.6])
-AC_SUBST(EGG_DBUS_CFLAGS)
-AC_SUBST(EGG_DBUS_LIBS)
 
 EXPAT_LIB=""
 AC_ARG_WITH(expat, [  --with-expat=<dir>      Use expat from here],
@@ -147,6 +146,35 @@ AC_CHECK_FUNCS(clearenv)
 if test "x$GCC" = "xyes"; then
   LDFLAGS="-Wl,--as-needed $LDFLAGS"
 fi
+
+dnl ---------------------------------------------------------------------------
+dnl - Select wether to use systemd or ConsoleKit for session tracking
+dnl ---------------------------------------------------------------------------
+
+have_systemd=no
+SESSION_TRACKING=ConsoleKit
+
+AC_ARG_ENABLE([systemd],
+              AS_HELP_STRING([--enable-systemd[=@<:@auto/yes/no@:>@]], [Use systemd (auto/yes/no)]),
+              [enable_systemd=$enableval],
+              [enable_systemd=auto])
+if test "$enable_systemd" != "no"; then
+  PKG_CHECK_MODULES(SYSTEMD,
+                    [libsystemd-login],
+                    have_systemd=yes,
+                    have_systemd=no)
+  if test "$have_systemd" = "yes"; then
+    SESSION_TRACKING=systemd
+  else
+    if test "$enable_systemd" = "yes"; then
+      AC_MSG_ERROR([systemd support requested but libsystemd-login1 library not found])
+    fi
+  fi
+fi
+
+AC_SUBST(SYSTEMD_CFLAGS)
+AC_SUBST(SYSTEMD_LIBS)
+AM_CONDITIONAL(HAVE_SYSTEMD, [test "$have_systemd" = "yes"], [Using systemd])
 
 dnl ---------------------------------------------------------------------------
 dnl - Select which authentication framework to use
@@ -383,29 +411,11 @@ case "$host_os" in
 	;;
 esac
 
-# GObject introspection
-#
-AC_ARG_ENABLE([introspection],
-	AS_HELP_STRING([--enable-introspection], [enable GObject introspection]),
-	[], [enable_introspection=yes])
-if test "x$enable_introspection" = xyes; then
-	PKG_CHECK_MODULES([INTROSPECTION], [gobject-introspection-1.0 >= 0.6.2])
-	AC_DEFINE([ENABLE_INTROSPECTION], [1], [enable GObject introspection support])
-	AC_SUBST([G_IR_SCANNER], [$($PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0)])
-	AC_SUBST([G_IR_COMPILER], [$($PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0)])
-	AC_SUBST([G_IR_GENERATE], [$($PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0)])
-	#AC_SUBST([GIRDIR], [$($PKG_CONFIG --variable=girdir gobject-introspection-1.0)])
-	#AC_SUBST([GIRTYPELIBDIR], [$($PKG_CONFIG --variable=typelibdir gobject-introspection-1.0)])
-        GIRDIR=${datadir}/gir-1.0
-        GIRTYPELIBDIR=${libdir}/girepository-1.0
-        AC_SUBST(GIRDIR)
-        AC_SUBST(GIRTYPELIBDIR)
-fi
-AM_CONDITIONAL([ENABLE_INTROSPECTION], [test "x$enable_introspection" = xyes])
+GOBJECT_INTROSPECTION_CHECK([0.6.2])
 
 AC_ARG_ENABLE([examples],
               AS_HELP_STRING([--enable-examples], [Build the example programs]),,
-              [enable_examples=no])
+              [enable_examples=yes])
 
 AM_CONDITIONAL(BUILD_EXAMPLES, test "x$enable_examples" = "xyes")
 
@@ -441,6 +451,9 @@ docs/Makefile
 docs/polkit/Makefile
 docs/man/Makefile
 po/Makefile.in
+test/Makefile
+test/polkit/Makefile
+test/polkitbackend/Makefile
 ])
 
 dnl ==========================================================================
@@ -462,10 +475,11 @@ echo "
         cflags:                     ${CFLAGS}
         cppflags:                   ${CPPFLAGS}
         xsltproc:                   ${XSLTPROC}
-	introspection:		    ${enable_introspection}
+	introspection:		    ${found_introspection}
 
         Distribution/OS:            ${with_os_type}
-        authentication framework:   ${POLKIT_AUTHFW}
+        Authentication framework:   ${POLKIT_AUTHFW}
+        Session tracking:           ${SESSION_TRACKING}
         PAM support:                ${have_pam}"
 
 if test "$have_pam" = yes ; then
@@ -475,12 +489,12 @@ echo "
         PAM file password:          ${PAM_FILE_INCLUDE_PASSWORD}
         PAM file session:           ${PAM_FILE_INCLUDE_SESSION}"
 fi
-
 echo "
         Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building verbose mode:      ${enable_verbose_mode}
         Building api docs:          ${enable_gtk_doc}
         Building man pages:         ${enable_man_pages}
+        Building examples:          ${enable_examples}
 
 "
 
