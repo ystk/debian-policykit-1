@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Utopia Maintenance Team <pkg-utopia-maintainers@lists.alioth.debian.org>
 Uploaders: Michael Biebl <biebl@debian.org>, Martin Pitt <mpitt@debian.org>
 Build-Depends: debhelper (>= 9),
- autotools-dev,
+ dh-autoreconf,
  pkg-config,
  libglib2.0-dev (>= 2.28.0),
  libexpat1-dev,
@@ -16,16 +16,18 @@ Build-Depends: debhelper (>= 9),
  gobject-introspection (>= 0.9.12-4~),
  gir1.2-glib-2.0,
  libglib2.0-doc,
- libgtk-3-doc
-Standards-Version: 3.9.3
-Vcs-Git: git://git.debian.org/git/pkg-utopia/policykit.git
-Vcs-Browser: http://git.debian.org/?p=pkg-utopia/policykit.git;a=summary
-Homepage: http://hal.freedesktop.org/docs/PolicyKit/
+ libgtk-3-doc,
+ libsystemd-login-dev [linux-any]
+Standards-Version: 3.9.5
+Vcs-Git: git://anonscm.debian.org/pkg-utopia/policykit.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-utopia/policykit.git;a=summary
+Homepage: http://www.freedesktop.org/wiki/Software/polkit/
 
 Package: policykit-1
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, consolekit, dbus
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpam-systemd [linux-any], consolekit [!linux-any], dbus
 Multi-Arch: foreign
+Breaks: gdm3 (<< 3.8.4-7~)
 Description: framework for managing administrative policies and privileges
  PolicyKit is an application-level toolkit for defining and handling the policy
  that allows unprivileged processes to speak to privileged processes.
