@@ -1,3 +1,139 @@
+policykit-1 (0.105-15~deb8u2) stable; urgency=medium
+
+  * Disable 0.113/sessionmonitor-systemd-prepare-for-D-Bus-user-bus-mo.patch
+    and 0.113/sessionmonitor-systemd-Use-sd_uid_get_state-to-check.patch.
+    Those two patches add support for `systemd --user` sessions and the D-Bus
+    user model. For that they rely on sd_uid_get_state() which seems to be
+    broken in Jessie when logind is running under sysvinit. Since those
+    features are not yet needed in Jessie, do not apply those patches.
+    (Closes: #825956)
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 06 Sep 2016 17:53:11 +0200
+
+policykit-1 (0.105-15~deb8u1) stable; urgency=medium
+
+  * Upload to stable.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 27 May 2016 12:46:17 +0200
+
+policykit-1 (0.105-15) unstable; urgency=medium
+
+  * Generate tight inter-package dependencies.
+    This ensures that everything from the same source package is upgraded in
+    lockstep. (Closes: #817998)
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 14 Apr 2016 13:57:13 +0200
+
+policykit-1 (0.105-14.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix FTBFS on non-linux/non-systemd. (Closes: #798769)
+
+ -- Adam Borowski <kilobyte@angband.pl>  Thu, 14 Jan 2016 06:28:38 +0100
+
+policykit-1 (0.105-14) unstable; urgency=medium
+
+  * debian/policykit-1.preinst: Use systemctl unmask instead of direct symlink
+    removal for consistency.
+  * Fix handling of multi-line helper output. Thanks Dariusz Gadomski! Patch
+    backported from upstream master. (LP: #1510824)
+
+ -- Martin Pitt <mpitt@debian.org>  Mon, 23 Nov 2015 11:38:00 +0100
+
+policykit-1 (0.105-13) unstable; urgency=medium
+
+  * debian/policykit-1.{pre,pos}inst: Temporarily mask polkitd.service while
+    policykit-1 is unpackaged but not yet configured. During that time we
+    don't yet have our D-Bus policy in /etc so that polkitd cannot work yet.
+    This can be dropped once the D-Bus policy moves to /usr.
+    (Closes: #794723, LP: #1447654)
+
+ -- Martin Pitt <mpitt@debian.org>  Wed, 21 Oct 2015 08:11:22 +0200
+
+policykit-1 (0.105-12) unstable; urgency=medium
+
+  * Team upload
+  * Replace 03_complete_session.patch with a change from upstream
+    which seems like a more correct solution for LP#445303, LP#649939
+  * 05_revert-admin-identities-unix-group-wheel.patch: remove confusing
+    staff -> desktop_admin_r change in a man page (desktop_admin_r looks
+    vaguely like a SELinux role but is actually being used as a group);
+    keep only the actual functional change. This matches the syntactically
+    different but functionally similar change in experimental.
+  * 09_pam_environment.patch: replace with the version that went upstream.
+  * Annotate remaining patches with a bit more information.
+    They are:
+    - 00git_fix_memleak.patch, 00git_invalid_object_paths.patch,
+      00git_type_registration.patch, 04_get_cwd.patch,
+      07_set-XAUTHORITY-environment-variable-if-unset.patch,
+      08_deprecate_racy_APIs.patch, 09_pam_environment.patch,
+      cve-2013-4288.patch: either backports from upstream, or already
+      applied upstream, and not discussed further here.
+    - 01_pam_polkit.patch: use Debian's common-* infrastructure,
+      plus pam_env to get the global environment and locale.
+      Debian-specific.
+    - 02_gettext.patch: Use gettext to translate .policy files at
+      runtime, allowing for Ubuntu-style language packs.
+      Debian-specific (mainly for Ubuntu's benefit, really).
+    - 05_revert-admin-identities-unix-group-wheel.patch: Debian does
+      not use the "wheel" group like Red Hat derivatives do;
+      treat uid 0 as the administrative identity instead.
+      Debian-specific.
+    - 06_systemd-service.patch: hook up the systemd service in
+      debian/polkitd.service.
+      Not forwarded: obsoleted by an upstream change in 0.106,
+      commit 2995085.
+  * Re-order patch series to put upstream changes first, sorted by version
+    in which they went upstream, and put them in subdirectories by version
+  * Add patches from 0.113 to fix heap corruption CVE-2015-3255
+    (Closes: #766860) and local authenticated denial of service
+    CVE-2015-4625 (Closes: #796134)
+  * Add numerous other bug-fix patches from 0.113
+    - work around bugs in older versions of libpam-systemd when using
+      su or similar (Closes: #772125)
+    - treat background processes as part of the same uid's active GUI
+      session if they have one (Closes: #779988)
+    - fix some memory leaks (Closes: #775158, LP: #1417637)
+  * Add backported public API polkit_system_bus_name_get_user_sync() to
+    symbols file
+  * Fix FTBFS with dpkg-buildpackage -A by only installing files into
+    policykit-1 in per-arch builds
+  * Run tests with a session bus pretending to be the system bus,
+    so they can pass in a buildd environment
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 11 Sep 2015 09:48:00 +0100
+
+policykit-1 (0.105-11) unstable; urgency=medium
+
+  * Add 00git_invalid_object_paths.patch: backend: Handle invalid object paths
+    in RegisterAuthenticationAgent (CVE-2015-3218, Closes: #787932)
+  * policykit-1.postinst: Reload systemd before restarting polkitd.service, to
+    avoid "Warning: polkitd.service changed on disk". (Closes: #791397)
+
+ -- Martin Pitt <mpitt@debian.org>  Fri, 10 Jul 2015 13:03:33 +0200
+
+policykit-1 (0.105-10) unstable; urgency=medium
+
+  * Add 00git_type_registration.patch: Use GOnce for interface type
+    registration. Fixes frequent udisks segfault (LP: #1236510).
+  * Add 00git_fix_memleak.patch: Fix memory leak in EnumerateActions call
+    results handler. (LP: #1417637)
+
+ -- Martin Pitt <mpitt@debian.org>  Wed, 08 Jul 2015 12:15:41 +0200
+
+policykit-1 (0.105-9) unstable; urgency=medium
+
+  [ Martin Pitt ]
+  * policykit-1.postinst: Don't kill polkitd under systemd, but properly
+    restart it. This avoids killing it shortly after systemd tries to
+    bus-activate it on installation. (LP: #1447654)
+
+  [ Michael Biebl ]
+  * Build against libsystemd instead of the old libsystemd-login compat
+    library. (Closes: #779756)
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 08 Jul 2015 02:10:58 +0200
+
 policykit-1 (0.105-8) unstable; urgency=medium
 
   * Rebuild against libsystemd0. This drops the last remaining dependency to

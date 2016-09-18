@@ -1,0 +1,31 @@
+From: Michael Biebl <biebl@debian.org>
+Date: Wed, 8 Jul 2015 02:08:33 +0200
+Subject: Build against libsystemd
+
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=779756
+Forwarded: no, obsoleted by upstream commit 2291767a014f5a04a92ca6f0eb472794f212ca67 in 0.113
+---
+ configure.ac | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: b/configure.ac
+===================================================================
+--- a/configure.ac
++++ b/configure.ac
+@@ -160,14 +160,14 @@
+               [enable_systemd=auto])
+ if test "$enable_systemd" != "no"; then
+   PKG_CHECK_MODULES(SYSTEMD,
+-                    [libsystemd-login],
++                    [libsystemd],
+                     have_systemd=yes,
+                     have_systemd=no)
+   if test "$have_systemd" = "yes"; then
+     SESSION_TRACKING=systemd
+   else
+     if test "$enable_systemd" = "yes"; then
+-      AC_MSG_ERROR([systemd support requested but libsystemd-login1 library not found])
++      AC_MSG_ERROR([systemd support requested but libsystemd library not found])
+     fi
+   fi
+ fi
