@@ -1,3 +1,14 @@
+policykit-1 (0.105-15~deb8u3) jessie-security; urgency=high
+
+  * Non-maintainer upload by the Debian LTS Team.
+  * Fix CVE-2018-1116: polkit_backend_interactive_authority_check_authorization
+    function in polkitd allows to test for authentication and trigger
+    authentication of unrelated processes owned by other users which result
+    in local DoS. (Closes: #903563)
+  * d/libpolkit-gobject-1-0.symbols: Update for new ABI
+
+ -- Abhijith PA <abhijith@disroot.org>  Fri, 27 Jul 2018 19:00:41 +0530
+
 policykit-1 (0.105-15~deb8u2) stable; urgency=medium
 
   * Disable 0.113/sessionmonitor-systemd-prepare-for-D-Bus-user-bus-mo.patch

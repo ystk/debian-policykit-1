@@ -34,3 +34,4 @@ master/Fix-multi-line-pam-text-info.patch
 05_revert-admin-identities-unix-group-wheel.patch
 06_systemd-service.patch
 10_build-against-libsystemd.patch
+CVE-2018-1116.patch
