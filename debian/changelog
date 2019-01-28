@@ -1,3 +1,10 @@
+policykit-1 (0.105-15~deb8u4) jessie-security; urgency=medium
+
+  * CVE-2018-19788: authorization bypass for users with a high id
+  * CVE-2019-6133: authorization reuse due to insuficient uid checks.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 28 Jan 2019 13:14:18 +0100
+
 policykit-1 (0.105-15~deb8u3) jessie-security; urgency=high
 
   * Non-maintainer upload by the Debian LTS Team.
