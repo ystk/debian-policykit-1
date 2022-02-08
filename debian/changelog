@@ -1,3 +1,11 @@
+policykit-1 (0.105-15~deb8u5) jessie-security; urgency=medium
+
+  * Non-maintainer upload by the ELTS team.
+  * Apply patch from stretch, backported to 0.105 by Salvatore Bonaccorso:
+    - Local Privilege Escalation in polkit's pkexec (CVE-2021-4034)
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 25 Jan 2022 19:22:23 +0100
+
 policykit-1 (0.105-15~deb8u4) jessie-security; urgency=medium
 
   * CVE-2018-19788: authorization bypass for users with a high id
